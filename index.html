@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Writing Time - Analyze your paragraph, calculate writing time, track speed and practice notebook dictation."
+    >
+
+    <title>Writing Time</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+<body>
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                ✍️
+            </div>
+
+            <div>
+                <h1>Writing Time</h1>
+
+                <p>
+                    Analyze • Practice • Improve
+                </p>
+            </div>
+
+        </div>
+
+
+        <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+        >
+            🌙 Dark
+        </button>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <main class="container">
+
+
+        <!-- =================================================
+             INPUT SECTION
+             ================================================= -->
+
+        <section class="card input-card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>📝 Your Paragraph</h2>
+
+                    <p>
+                        Enter the paragraph you want to analyze.
+                    </p>
+                </div>
+
+                <span
+                    id="liveStatus"
+                    class="status-badge"
+                >
+                    Ready
+                </span>
+
+            </div>
+
+
+            <textarea
+                id="paragraph"
+                placeholder="Type or paste your paragraph here..."
+                spellcheck="true"
+                autocomplete="off"
+            ></textarea>
+
+
+            <div class="input-footer">
+
+                <span id="charPreview">
+                    0 letters + numbers
+                </span>
+
+                <div class="input-actions">
+
+                    <button
+                        id="calculateBtn"
+                        class="primary-btn"
+                        type="button"
+                    >
+                        Calculate
+                    </button>
+
+                    <button
+                        id="clearBtn"
+                        class="secondary-btn"
+                        type="button"
+                    >
+                        Clear
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             LIVE STATISTICS
+             ================================================= -->
+
+        <section class="card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>📊 Live Statistics</h2>
+
+                    <p>
+                        Statistics update automatically as you type.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <span class="stat-label">Words</span>
+                    <strong id="words">0</strong>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-label">Letters</span>
+                    <strong id="letters">0</strong>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-label">Numbers</span>
+                    <strong id="numbers">0</strong>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-label">Characters</span>
+                    <strong id="characters">0</strong>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-label">Spaces</span>
+                    <strong id="spaces">0</strong>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-label">Punctuation</span>
+                    <strong id="punctuation">0</strong>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-label">Sentences</span>
+                    <strong id="sentences">0</strong>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-label">Paragraphs</span>
+                    <strong id="paragraphs">0</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             WRITING SPEED
+             ================================================= -->
+
+        <section class="card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>⚡ Writing Speed</h2>
+
+                    <p>
+                        Compare your actual speed with your target.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="stats-grid three-columns">
+
+                <div class="stat-card large-stat">
+
+                    <span class="stat-label">
+                        Characters / Minute
+                    </span>
+
+                    <strong id="cpm">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card large-stat">
+
+                    <span class="stat-label">
+                        Words / Minute
+                    </span>
+
+                    <strong id="wpm">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card large-stat">
+
+                    <span class="stat-label">
+                        Difference from Target
+                    </span>
+
+                    <strong id="speedDifference">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="speed-target">
+
+                Target speed:
+
+                <strong id="targetSpeed">
+                    68
+                </strong>
+
+                characters/minute
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ESTIMATED VS ACTUAL TIME
+             ================================================= -->
+
+        <section class="card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>⏱️ Estimated vs Actual Time</h2>
+
+                    <p>
+                        See how your actual writing time compares.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="time-grid">
+
+                <div class="time-card">
+
+                    <span>
+                        Estimated Time
+                    </span>
+
+                    <strong id="estimatedTime">
+                        0:00
+                    </strong>
+
+                    <small>
+                        Based on 68 characters/minute
+                    </small>
+
+                </div>
+
+
+                <div class="time-card">
+
+                    <span>
+                        Actual Time
+                    </span>
+
+                    <strong id="actualTime">
+                        0:00
+                    </strong>
+
+                    <small>
+                        Measured by the timer
+                    </small>
+
+                </div>
+
+
+                <div class="time-card">
+
+                    <span>
+                        Difference
+                    </span>
+
+                    <strong id="timeDifference">
+                        0:00
+                    </strong>
+
+                    <small id="differenceLabel">
+                        No difference yet
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             STOPWATCH
+             ================================================= -->
+
+        <section class="card timer-card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>⏱️ Writing Timer</h2>
+
+                    <p>
+                        Start the timer when you begin writing.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div
+                id="stopwatch"
+                class="stopwatch"
+            >
+                0:00
+            </div>
+
+
+            <div class="timer-controls">
+
+                <button
+                    id="startTimer"
+                    class="primary-btn"
+                    type="button"
+                >
+                    ▶ Start
+                </button>
+
+                <button
+                    id="pauseTimer"
+                    class="secondary-btn"
+                    type="button"
+                >
+                    ⏸ Pause
+                </button>
+
+                <button
+                    id="resetTimer"
+                    class="danger-btn"
+                    type="button"
+                >
+                    ↻ Reset
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             READING TIME
+             ================================================= -->
+
+        <section class="card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>📖 Reading Time</h2>
+
+                    <p>
+                        Estimated time required to read the paragraph.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="reading-time-box">
+
+                <strong id="readingTime">
+                    0:00
+                </strong>
+
+                <span>
+                    estimated reading time
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             TEXT ANALYSIS
+             ================================================= -->
+
+        <section class="card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>🔎 Text Analysis</h2>
+
+                    <p>
+                        Detailed analysis of your paragraph.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="analysis-grid">
+
+                <div class="analysis-item">
+
+                    <span>
+                        Average Word Length
+                    </span>
+
+                    <strong id="averageWordLength">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="analysis-item">
+
+                    <span>
+                        Average Sentence Length
+                    </span>
+
+                    <strong id="averageSentenceLength">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="analysis-item">
+
+                    <span>
+                        Longest Word
+                    </span>
+
+                    <strong id="longestWord">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="analysis-item">
+
+                    <span>
+                        Unique Words
+                    </span>
+
+                    <strong id="uniqueWords">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="analysis-item">
+
+                    <span>
+                        Longest Sentence
+                    </span>
+
+                    <strong id="longestSentence">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="analysis-item">
+
+                    <span>
+                        Shortest Sentence
+                    </span>
+
+                    <strong id="shortestSentence">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="analysis-item">
+
+                    <span>
+                        Readability
+                    </span>
+
+                    <strong id="readability">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="analysis-item">
+
+                    <span>
+                        Repeated Words
+                    </span>
+
+                    <strong id="repeatedWords">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="frequency-section">
+
+                <h3>
+                    Word Frequency
+                </h3>
+
+                <div
+                    id="wordFrequency"
+                    class="word-frequency"
+                >
+                    No repeated words yet.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             GOAL
+             ================================================= -->
+
+        <section class="card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>🎯 Writing Goal</h2>
+
+                    <p>
+                        Set a target and track your progress.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="goal-controls">
+
+                <div class="form-group">
+
+                    <label for="goalType">
+                        Goal Type
+                    </label>
+
+                    <select id="goalType">
+
+                        <option value="words">
+                            Words
+                        </option>
+
+                        <option value="letters">
+                            Letters
+                        </option>
+
+                        <option value="characters">
+                            Characters
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="goalTarget">
+                        Target
+                    </label>
+
+                    <input
+                        id="goalTarget"
+                        type="number"
+                        min="1"
+                        value="500"
+                    >
+
+                </div>
+
+
+                <button
+                    id="setGoalBtn"
+                    class="primary-btn"
+                    type="button"
+                >
+                    Set Goal
+                </button>
+
+            </div>
+
+
+            <div class="goal-progress">
+
+                <div class="goal-progress-header">
+
+                    <strong id="goalProgressText">
+                        0 / 500 words
+                    </strong>
+
+                    <strong id="goalPercentage">
+                        0%
+                    </strong>
+
+                </div>
+
+
+                <div class="progress-track">
+
+                    <div
+                        id="goalProgressBar"
+                        class="progress-bar"
+                        style="width: 0%"
+                    ></div>
+
+                </div>
+
+
+                <p id="goalStatus">
+                    500 words remaining to reach your goal.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SESSION SCORE
+             ================================================= -->
+
+        <section class="card score-card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>🏆 Session Score</h2>
+
+                    <p>
+                        Overall performance for this session.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="score-layout">
+
+                <div class="score-circle">
+
+                    <span id="sessionScore">
+                        0
+                    </span>
+
+                    <small>
+                        / 100
+                    </small>
+
+                </div>
+
+
+                <div class="score-details">
+
+                    <div class="score-row">
+
+                        <span>
+                            Speed
+                        </span>
+
+                        <strong id="speedScore">
+                            0/40
+                        </strong>
+
+                    </div>
+
+
+                    <div class="score-row">
+
+                        <span>
+                            Goal
+                        </span>
+
+                        <strong id="goalScore">
+                            0/30
+                        </strong>
+
+                    </div>
+
+
+                    <div class="score-row">
+
+                        <span>
+                            Consistency
+                        </span>
+
+                        <strong id="consistencyScore">
+                            0/30
+                        </strong>
+
+                    </div>
+
+
+                    <p id="scoreMessage">
+                        Start writing to calculate your score.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SMART NOTEBOOK DICTATION
+             ================================================= -->
+
+        <section
+            id="dictationSection"
+            class="card dictation-card"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        🎙️ Smart Notebook Dictation
+                    </h2>
+
+                    <p>
+                        The app speaks one word, then waits for
+                        the calculated time needed to write it.
+                    </p>
+
+                </div>
+
+
+                <span
+                    id="dictationStatus"
+                    class="status-badge"
+                >
+                    Ready
+                </span>
+
+            </div>
+
+
+            <!-- Current Word -->
+
+            <div class="dictation-word-display">
+
+                <span>
+                    Current Word
+                </span>
+
+                <strong id="dictationCurrentWord">
+                    —
+                </strong>
+
+            </div>
+
+
+            <!-- Countdown -->
+
+            <div class="dictation-countdown">
+
+                <span>
+                    Writing Time Remaining
+                </span>
+
+                <strong id="dictationCountdown">
+                    0.00s
+                </strong>
+
+            </div>
+
+
+            <!-- Word Statistics -->
+
+            <div class="dictation-stats">
+
+                <div class="dictation-stat">
+
+                    <span>
+                        Word
+                    </span>
+
+                    <strong>
+
+                        <span id="dictationWordNumber">
+                            0
+                        </span>
+
+                        /
+
+                        <span id="dictationTotalWords">
+                            0
+                        </span>
+
+                    </strong>
+
+                </div>
+
+
+                <div class="dictation-stat">
+
+                    <span>
+                        Characters
+                    </span>
+
+                    <strong id="dictationCharacterCount">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="dictation-stat">
+
+                    <span>
+                        Writing Time
+                    </span>
+
+                    <strong id="dictationWritingTime">
+                        0.00s
+                    </strong>
+
+                </div>
+
+
+                <div class="dictation-stat">
+
+                    <span>
+                        Target CPM
+                    </span>
+
+                    <strong id="dictationSpeed">
+                        68
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- Progress -->
+
+            <div class="dictation-progress">
+
+                <div class="dictation-progress-header">
+
+                    <span>
+                        Progress
+                    </span>
+
+                    <strong id="dictationProgressText">
+                        0%
+                    </strong>
+
+                </div>
+
+
+                <div class="progress-track">
+
+                    <div
+                        id="dictationProgressBar"
+                        class="progress-bar"
+                        style="width: 0%"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Dictation Controls -->
+
+            <div class="dictation-controls">
+
+                <button
+                    id="startDictation"
+                    class="primary-btn"
+                    type="button"
+                >
+                    ▶ Start Dictation
+                </button>
+
+
+                <button
+                    id="pauseDictation"
+                    class="secondary-btn"
+                    type="button"
+                >
+                    ⏸ Pause
+                </button>
+
+
+                <button
+                    id="stopDictation"
+                    class="danger-btn"
+                    type="button"
+                >
+                    ■ Stop
+                </button>
+
+
+                <button
+                    id="resetDictation"
+                    class="secondary-btn"
+                    type="button"
+                >
+                    ↻ Reset
+                </button>
+
+            </div>
+
+
+            <!-- Dictation Settings -->
+
+            <div class="dictation-settings">
+
+                <div class="form-group">
+
+                    <label for="dictationSpeechRate">
+                        Speech Speed
+                    </label>
+
+                    <div class="range-with-value">
+
+                        <input
+                            id="dictationSpeechRate"
+                            type="range"
+                            min="0.5"
+                            max="2"
+                            step="0.1"
+                            value="1"
+                        >
+
+                        <strong id="dictationSpeechRateValue">
+                            1.0×
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="dictationExtraDelay">
+                        Extra Delay Per Word
+                    </label>
+
+                    <div class="input-with-unit">
+
+                        <input
+                            id="dictationExtraDelay"
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            value="0"
+                        >
+
+                        <span>
+                            seconds
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <strong>
+                    How it works
+                </strong>
+
+                <p>
+
+                    Each word is counted by its letters and
+                    numbers. The app calculates:
+
+                </p>
+
+                <code>
+                    characters ÷ CPM × 60
+                </code>
+
+                <p>
+
+                    For example, at 68 CPM, a 9-character
+                    word gets approximately 7.94 seconds
+                    of writing time.
+
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PERFORMANCE
+             ================================================= -->
+
+        <section class="card">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        📈 Performance
+                    </h2>
+
+                    <p>
+                        Your writing speed across saved sessions.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-container">
+
+                <canvas
+                    id="performanceChart"
+                ></canvas>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             HISTORY
+             ================================================= -->
+
+        <section class="card">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        🗂️ Writing History
+                    </h2>
+
+                    <p>
+                        Your saved writing sessions.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="clearHistoryBtn"
+                    class="danger-btn small-btn"
+                    type="button"
+                >
+                    Clear History
+                </button>
+
+            </div>
+
+
+            <div
+                id="historyList"
+                class="history-list"
+            ></div>
+
+
+            <div
+                id="historyEmpty"
+                class="empty-state"
+            >
+
+                <span>
+                    📭
+                </span>
+
+                <strong>
+                    No saved sessions
+                </strong>
+
+                <p>
+                    Complete a writing session to see it here.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SETTINGS
+             ================================================= -->
+
+        <section class="card">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        ⚙️ Settings
+                    </h2>
+
+                    <p>
+                        Customize your writing calculations.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="settings-grid">
+
+
+                <!-- Writing Speed -->
+
+                <div class="form-group">
+
+                    <label for="speedInput">
+                        Target Writing Speed
+                    </label>
+
+                    <div class="input-with-unit">
+
+                        <input
+                            id="speedInput"
+                            type="number"
+                            min="1"
+                            value="68"
+                        >
+
+                        <span>
+                            characters/min
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Reading Speed -->
+
+                <div class="form-group">
+
+                    <label for="readingSpeedInput">
+                        Reading Speed
+                    </label>
+
+                    <div class="input-with-unit">
+
+                        <input
+                            id="readingSpeedInput"
+                            type="number"
+                            min="1"
+                            value="200"
+                        >
+
+                        <span>
+                            words/min
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Auto Save -->
+
+                <div class="setting-toggle">
+
+                    <div>
+
+                        <strong>
+                            Auto Save
+                        </strong>
+
+                        <p>
+                            Automatically save completed sessions.
+                        </p>
+
+                    </div>
+
+                    <label class="switch">
+
+                        <input
+                            id="autoSaveToggle"
+                            type="checkbox"
+                            checked
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+
+                <!-- Auto Timer -->
+
+                <div class="setting-toggle">
+
+                    <div>
+
+                        <strong>
+                            Auto Timer
+                        </strong>
+
+                        <p>
+                            Start the timer when you begin typing.
+                        </p>
+
+                    </div>
+
+                    <label class="switch">
+
+                        <input
+                            id="autoTimerToggle"
+                            type="checkbox"
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <div class="storage-info">
+
+                <div>
+
+                    <strong>
+                        💾 Local Storage
+                    </strong>
+
+                    <p>
+                        Your saved data stays inside this browser
+                        on this computer.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="clearSavedDataBtn"
+                    class="danger-btn"
+                    type="button"
+                >
+                    Clear All Saved Data
+                </button>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer class="footer">
+
+        <p>
+            Writing Time • Local writing analysis tool
+        </p>
+
+        <p>
+            Data is stored locally in your browser.
+        </p>
+
+    </footer>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script src="script.js"></script>
+
+</body>
+</html>
