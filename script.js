@@ -1,5 +1,6 @@
 /* =========================================================
-   WRITING TIME — COMPLETE JAVASCRIPT
+   WRITING TIME
+   COMPLETE JAVASCRIPT
    ========================================================= */
 
    "use strict";
@@ -9,86 +10,142 @@
       STORAGE
       ========================================================= */
    
-   const STORAGE_KEY = "writingTimeAppData_v2";
+   const STORAGE_KEY =
+       "writingTimeAppData_v4";
    
    
    const defaultData = {
-       paragraph: "",
    
-       settings: {
-           targetSpeed: 68,
-           readingSpeed: 200,
-           autoSave: true,
-           autoTimer: false,
-           speechRate: 1,
-           extraDelay: 0
-       },
+       paragraph: "",
    
        theme: "light",
    
+       settings: {
+   
+           targetSpeed: 68,
+   
+           readingSpeed: 200,
+   
+           autoSave: true,
+   
+           autoTimer: false,
+   
+           speechRate: 1,
+   
+           extraDelay: 0
+   
+       },
+   
        goal: {
+   
            type: "words",
+   
            target: 500
+   
        },
    
        history: [],
    
-       timer: {
-           elapsed: 0
+       currentSession: {
+   
+           elapsed: 0,
+   
+           started: false,
+   
+           completed: false
+   
        }
+   
    };
    
    
-   let appData = loadData();
+   function deepClone(object) {
+   
+       return JSON.parse(
+           JSON.stringify(object)
+       );
+   }
    
    
    function loadData() {
    
        try {
    
-           const saved = localStorage.getItem(STORAGE_KEY);
+           const saved =
+               localStorage.getItem(
+                   STORAGE_KEY
+               );
+   
    
            if (!saved) {
-               return structuredClone(defaultData);
+   
+               return deepClone(
+                   defaultData
+               );
            }
    
-           const parsed = JSON.parse(saved);
+   
+           const parsed =
+               JSON.parse(saved);
+   
    
            return {
-               ...structuredClone(defaultData),
+   
+               ...deepClone(
+                   defaultData
+               ),
+   
                ...parsed,
    
                settings: {
+   
                    ...defaultData.settings,
+   
                    ...(parsed.settings || {})
+   
                },
    
                goal: {
+   
                    ...defaultData.goal,
+   
                    ...(parsed.goal || {})
+   
                },
    
-               timer: {
-                   ...defaultData.timer,
-                   ...(parsed.timer || {})
+               currentSession: {
+   
+                   ...defaultData.currentSession,
+   
+                   ...(parsed.currentSession || {})
+   
                },
    
-               history: Array.isArray(parsed.history)
-                   ? parsed.history
-                   : []
+               history:
+                   Array.isArray(
+                       parsed.history
+                   )
+                       ? parsed.history
+                       : []
    
            };
    
        } catch (error) {
    
            console.error(
-               "Could not load saved data:",
+               "Storage loading failed:",
                error
            );
    
-           return structuredClone(defaultData);
+           return deepClone(
+               defaultData
+           );
        }
    }
+   
+   
+   let appData =
+       loadData();
    
    
    function saveData() {
@@ -97,13 +154,15 @@
    
            localStorage.setItem(
                STORAGE_KEY,
-               JSON.stringify(appData)
+               JSON.stringify(
+                   appData
+               )
            );
    
        } catch (error) {
    
            console.error(
-               "Could not save data:",
+               "Storage saving failed:",
                error
            );
        }
@@ -114,275 +173,370 @@
       ELEMENTS
       ========================================================= */
    
+   const $ = id =>
+       document.getElementById(id);
+   
+   
    const paragraph =
-       document.getElementById("paragraph");
+       $("paragraph");
+   
    
    const calculateBtn =
-       document.getElementById("calculateBtn");
+       $("calculateBtn");
    
    const clearBtn =
-       document.getElementById("clearBtn");
+       $("clearBtn");
    
-   const charPreview =
-       document.getElementById("charPreview");
    
    const liveStatus =
-       document.getElementById("liveStatus");
+       $("liveStatus");
    
    
    /* Statistics */
    
    const wordsEl =
-       document.getElementById("words");
+       $("words");
    
    const lettersEl =
-       document.getElementById("letters");
+       $("letters");
    
    const numbersEl =
-       document.getElementById("numbers");
+       $("numbers");
    
    const charactersEl =
-       document.getElementById("characters");
+       $("characters");
    
    const spacesEl =
-       document.getElementById("spaces");
+       $("spaces");
    
    const punctuationEl =
-       document.getElementById("punctuation");
+       $("punctuation");
    
    const sentencesEl =
-       document.getElementById("sentences");
+       $("sentences");
    
    const paragraphsEl =
-       document.getElementById("paragraphs");
+       $("paragraphs");
    
    
    /* Speed */
    
    const cpmEl =
-       document.getElementById("cpm");
+       $("cpm");
    
    const wpmEl =
-       document.getElementById("wpm");
+       $("wpm");
    
    const speedDifferenceEl =
-       document.getElementById("speedDifference");
+       $("speedDifference");
    
    const targetSpeedEl =
-       document.getElementById("targetSpeed");
+       $("targetSpeed");
+   
+   const targetSpeedCardEl =
+       $("targetSpeedCard");
+   
+   const chartCurrentSpeedEl =
+       $("chartCurrentSpeed");
    
    
    /* Time */
    
    const estimatedTimeEl =
-       document.getElementById("estimatedTime");
+       $("estimatedTime");
    
    const actualTimeEl =
-       document.getElementById("actualTime");
+       $("actualTime");
    
    const timeDifferenceEl =
-       document.getElementById("timeDifference");
+       $("timeDifference");
    
    const differenceLabelEl =
-       document.getElementById("differenceLabel");
+       $("differenceLabel");
    
    
    /* Timer */
    
    const stopwatchEl =
-       document.getElementById("stopwatch");
+       $("stopwatch");
    
    const startTimerBtn =
-       document.getElementById("startTimer");
+       $("startTimer");
    
    const pauseTimerBtn =
-       document.getElementById("pauseTimer");
+       $("pauseTimer");
    
    const resetTimerBtn =
-       document.getElementById("resetTimer");
+       $("resetTimer");
    
    
    /* Reading */
    
    const readingTimeEl =
-       document.getElementById("readingTime");
+       $("readingTime");
    
    
    /* Analysis */
    
    const averageWordLengthEl =
-       document.getElementById("averageWordLength");
+       $("averageWordLength");
    
    const averageSentenceLengthEl =
-       document.getElementById("averageSentenceLength");
+       $("averageSentenceLength");
    
    const longestWordEl =
-       document.getElementById("longestWord");
+       $("longestWord");
    
    const uniqueWordsEl =
-       document.getElementById("uniqueWords");
+       $("uniqueWords");
    
    const longestSentenceEl =
-       document.getElementById("longestSentence");
+       $("longestSentence");
    
    const shortestSentenceEl =
-       document.getElementById("shortestSentence");
+       $("shortestSentence");
    
    const readabilityEl =
-       document.getElementById("readability");
+       $("readability");
    
    const repeatedWordsEl =
-       document.getElementById("repeatedWords");
+       $("repeatedWords");
+   
+   
+   /* Word frequency */
    
    const wordFrequencyEl =
-       document.getElementById("wordFrequency");
+       $("wordFrequency");
+   
+   const topWordsBtn =
+       $("topWordsBtn");
+   
+   const allWordsBtn =
+       $("allWordsBtn");
+   
+   
+   let frequencyMode =
+       "top";
    
    
    /* Goal */
    
    const goalTypeEl =
-       document.getElementById("goalType");
+       $("goalType");
    
    const goalTargetEl =
-       document.getElementById("goalTarget");
+       $("goalTarget");
    
    const setGoalBtn =
-       document.getElementById("setGoalBtn");
+       $("setGoalBtn");
    
    const goalProgressTextEl =
-       document.getElementById("goalProgressText");
+       $("goalProgressText");
    
    const goalPercentageEl =
-       document.getElementById("goalPercentage");
+       $("goalPercentage");
    
    const goalProgressBarEl =
-       document.getElementById("goalProgressBar");
+       $("goalProgressBar");
    
    const goalStatusEl =
-       document.getElementById("goalStatus");
+       $("goalStatus");
    
    
    /* Score */
    
    const sessionScoreEl =
-       document.getElementById("sessionScore");
-   
-   const speedScoreEl =
-       document.getElementById("speedScore");
-   
-   const goalScoreEl =
-       document.getElementById("goalScore");
-   
-   const consistencyScoreEl =
-       document.getElementById("consistencyScore");
+       $("sessionScore");
    
    const scoreMessageEl =
-       document.getElementById("scoreMessage");
+       $("scoreMessage");
+   
+   const speedScoreEl =
+       $("speedScore");
+   
+   const goalScoreEl =
+       $("goalScore");
+   
+   const accuracyScoreEl =
+       $("accuracyScore");
+   
+   const consistencyScoreEl =
+       $("consistencyScore");
+   
+   const completionScoreEl =
+       $("completionScore");
+   
+   
+   /* Personal best */
+   
+   const bestCPMEl =
+       $("bestCPM");
+   
+   const bestWPMEl =
+       $("bestWPM");
+   
+   const bestScoreEl =
+       $("bestScore");
+   
+   const mostWordsEl =
+       $("mostWords");
+   
+   const longestSessionEl =
+       $("longestSession");
+   
+   
+   /* Comparison */
+   
+   const comparisonWordsEl =
+       $("comparisonWords");
+   
+   const comparisonCPMEl =
+       $("comparisonCPM");
+   
+   const comparisonScoreEl =
+       $("comparisonScore");
+   
+   const comparisonTimeEl =
+       $("comparisonTime");
+   
+   const comparisonMessageEl =
+       $("comparisonMessage");
+   
+   
+   /* Share */
+   
+   const shareBtn =
+       $("shareBtn");
+   
+   const shareScoreEl =
+       $("shareScore");
+   
+   const shareTitleEl =
+       $("shareTitle");
+   
+   const shareSummaryEl =
+       $("shareSummary");
    
    
    /* Dictation */
    
    const dictationStatusEl =
-       document.getElementById("dictationStatus");
+       $("dictationStatus");
    
    const dictationCurrentWordEl =
-       document.getElementById("dictationCurrentWord");
+       $("dictationCurrentWord");
    
    const dictationCountdownEl =
-       document.getElementById("dictationCountdown");
+       $("dictationCountdown");
    
    const dictationWordNumberEl =
-       document.getElementById("dictationWordNumber");
+       $("dictationWordNumber");
    
    const dictationTotalWordsEl =
-       document.getElementById("dictationTotalWords");
+       $("dictationTotalWords");
    
    const dictationCharacterCountEl =
-       document.getElementById("dictationCharacterCount");
+       $("dictationCharacterCount");
    
    const dictationWritingTimeEl =
-       document.getElementById("dictationWritingTime");
+       $("dictationWritingTime");
    
    const dictationSpeedEl =
-       document.getElementById("dictationSpeed");
+       $("dictationSpeed");
    
    const dictationProgressTextEl =
-       document.getElementById("dictationProgressText");
+       $("dictationProgressText");
    
    const dictationProgressBarEl =
-       document.getElementById("dictationProgressBar");
+       $("dictationProgressBar");
    
    const startDictationBtn =
-       document.getElementById("startDictation");
+       $("startDictation");
    
    const pauseDictationBtn =
-       document.getElementById("pauseDictation");
+       $("pauseDictation");
    
    const stopDictationBtn =
-       document.getElementById("stopDictation");
+       $("stopDictation");
    
    const resetDictationBtn =
-       document.getElementById("resetDictation");
+       $("resetDictation");
    
    const dictationSpeechRateEl =
-       document.getElementById("dictationSpeechRate");
+       $("dictationSpeechRate");
    
    const dictationSpeechRateValueEl =
-       document.getElementById("dictationSpeechRateValue");
+       $("dictationSpeechRateValue");
    
    const dictationExtraDelayEl =
-       document.getElementById("dictationExtraDelay");
-   
-   
-   /* Performance */
-   
-   const performanceChart =
-       document.getElementById("performanceChart");
-   
-   
-   /* History */
-   
-   const historyListEl =
-       document.getElementById("historyList");
-   
-   const historyEmptyEl =
-       document.getElementById("historyEmpty");
-   
-   const clearHistoryBtn =
-       document.getElementById("clearHistoryBtn");
+       $("dictationExtraDelay");
    
    
    /* Settings */
    
    const themeToggle =
-       document.getElementById("themeToggle");
+       $("themeToggle");
    
    const speedInput =
-       document.getElementById("speedInput");
+       $("speedInput");
    
    const readingSpeedInput =
-       document.getElementById("readingSpeedInput");
+       $("readingSpeedInput");
    
    const autoSaveToggle =
-       document.getElementById("autoSaveToggle");
+       $("autoSaveToggle");
    
    const autoTimerToggle =
-       document.getElementById("autoTimerToggle");
+       $("autoTimerToggle");
    
    const clearSavedDataBtn =
-       document.getElementById("clearSavedDataBtn");
+       $("clearSavedDataBtn");
+   
+   
+   /* History */
+   
+   const historyListEl =
+       $("historyList");
+   
+   const historyEmptyEl =
+       $("historyEmpty");
+   
+   const clearHistoryBtn =
+       $("clearHistoryBtn");
    
    
    /* =========================================================
       TIMER STATE
       ========================================================= */
    
-   let timerRunning = false;
-   let timerStartTime = 0;
-   let timerInterval = null;
+   let timerRunning =
+       false;
+   
+   let timerStartTimestamp =
+       0;
    
    let elapsedMilliseconds =
-       Number(appData.timer.elapsed || 0);
+       Number(
+           appData.currentSession.elapsed
+       ) || 0;
+   
+   let timerInterval =
+       null;
+   
+   
+   /* =========================================================
+      ACTIVE WRITING DATA
+      ========================================================= */
+   
+   let sessionSamples = [];
+   
+   let lastCharacterCount =
+       getCharacterCount(
+           paragraph.value
+       );
+   
+   let lastSampleTimestamp =
+       0;
    
    
    /* =========================================================
@@ -405,51 +559,37 @@
    
    
    /* =========================================================
-      HELPERS
+      BASIC HELPERS
       ========================================================= */
    
-   function cloneDefaultData() {
+   function escapeHTML(value) {
    
-       return JSON.parse(
-           JSON.stringify(defaultData)
-       );
-   }
+       return String(value)
    
+           .replaceAll(
+               "&",
+               "&amp;"
+           )
    
-   function formatTime(totalSeconds) {
+           .replaceAll(
+               "<",
+               "&lt;"
+           )
    
-       totalSeconds =
-           Math.max(0, Math.floor(totalSeconds));
+           .replaceAll(
+               ">",
+               "&gt;"
+           )
    
-       const minutes =
-           Math.floor(totalSeconds / 60);
+           .replaceAll(
+               '"',
+               "&quot;"
+           )
    
-       const seconds =
-           totalSeconds % 60;
-   
-       return (
-           minutes +
-           ":" +
-           String(seconds).padStart(2, "0")
-       );
-   }
-   
-   
-   function formatMilliseconds(milliseconds) {
-   
-       const seconds =
-           Math.max(0, milliseconds) / 1000;
-   
-       return (
-           Math.floor(seconds) +
-           "." +
-           String(
-               Math.floor(
-                   milliseconds % 1000
-               )
-           ).padStart(3, "0").slice(0, 2) +
-           "s"
-       );
+           .replaceAll(
+               "'",
+               "&#039;"
+           );
    }
    
    
@@ -465,7 +605,9 @@
    function getLetterCount(text) {
    
        return (
-           text.match(/[A-Za-zÀ-ÖØ-öø-ÿ]/g) || []
+           text.match(
+               /\p{L}/gu
+           ) || []
        ).length;
    }
    
@@ -473,7 +615,9 @@
    function getNumberCount(text) {
    
        return (
-           text.match(/[0-9]/g) || []
+           text.match(
+               /\p{N}/gu
+           ) || []
        ).length;
    }
    
@@ -481,7 +625,9 @@
    function getSpaceCount(text) {
    
        return (
-           text.match(/\s/g) || []
+           text.match(
+               /\s/g
+           ) || []
        ).length;
    }
    
@@ -489,8 +635,9 @@
    function getPunctuationCount(text) {
    
        return (
-           text.match(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g) ||
-           []
+           text.match(
+               /[\p{P}\p{S}]/gu
+           ) || []
        ).length;
    }
    
@@ -498,11 +645,13 @@
    function getCharacterCount(text) {
    
        /*
-          Characters here include:
-          letters + numbers
+          Characters used for writing-time
+          calculation:
    
-          This is the number used for the
-          writing-time calculation.
+          Letters + numbers
+   
+          Spaces and punctuation are
+          displayed separately.
        */
    
        return (
@@ -516,26 +665,56 @@
    
        return text
            .split(/[.!?]+/)
-           .map(sentence => sentence.trim())
+           .map(
+               sentence =>
+                   sentence.trim()
+           )
            .filter(Boolean);
    }
    
    
-   function calculateEstimatedSeconds(
-       characterCount
-   ) {
+   function formatTime(seconds) {
    
-       const speed =
-           Number(appData.settings.targetSpeed) || 68;
+       seconds =
+           Math.max(
+               0,
+               Math.floor(
+                   Number(seconds) || 0
+               )
+           );
    
-       if (characterCount <= 0) {
-           return 0;
-       }
+   
+       const minutes =
+           Math.floor(
+               seconds / 60
+           );
+   
+   
+       const remaining =
+           seconds % 60;
+   
    
        return (
-           characterCount /
-           speed *
-           60
+           minutes +
+           ":" +
+           String(
+               remaining
+           ).padStart(
+               2,
+               "0"
+           )
+       );
+   }
+   
+   
+   function formatDecimalTime(seconds) {
+   
+       return (
+           Math.max(
+               0,
+               Number(seconds) || 0
+           ).toFixed(2) +
+           "s"
        );
    }
    
@@ -549,120 +728,150 @@
        const wordList =
            getWords(text);
    
+   
        const sentences =
            getSentenceArray(text);
+   
    
        const letters =
            getLetterCount(text);
    
+   
        const numbers =
            getNumberCount(text);
+   
    
        const characters =
            getCharacterCount(text);
    
+   
        const spaces =
            getSpaceCount(text);
+   
    
        const punctuation =
            getPunctuationCount(text);
    
    
-       /* Word frequency */
-   
        const frequency = {};
+   
    
        wordList.forEach(word => {
    
            const cleaned =
                word
-                   .toLowerCase()
+   
+                   .toLocaleLowerCase()
+   
                    .replace(
-                       /[^a-z0-9À-ÖØ-öø-ÿ]/gi,
+                       /[^\p{L}\p{N}']/gu,
                        ""
                    );
+   
    
            if (!cleaned) {
                return;
            }
    
+   
            frequency[cleaned] =
-               (frequency[cleaned] || 0) + 1;
+               (
+                   frequency[cleaned] ||
+                   0
+               ) + 1;
        });
    
    
        const uniqueWords =
-           Object.keys(frequency).length;
+           Object.keys(
+               frequency
+           ).length;
    
    
        const repeatedWords =
-           Object.values(frequency)
-               .filter(count => count > 1)
-               .length;
+           Object.values(
+               frequency
+           ).filter(
+               count =>
+                   count > 1
+           ).length;
    
    
-       /* Longest word */
+       let longestWord =
+           "—";
    
-       let longestWord = "—";
    
        wordList.forEach(word => {
    
            const cleaned =
                word.replace(
-                   /[^a-zA-Z0-9À-ÖØ-öø-ÿ]/g,
+                   /[^\p{L}\p{N}]/gu,
                    ""
                );
    
+   
            if (
+               longestWord === "—" ||
                cleaned.length >
-               longestWord.replace(
-                   /[^a-zA-Z0-9À-ÖØ-öø-ÿ]/g,
-                   ""
-               ).length
+               longestWord.length
            ) {
    
-               longestWord = cleaned;
+               longestWord =
+                   cleaned;
            }
        });
    
    
-       /* Average word length */
-   
        const averageWordLength =
            wordList.length > 0
-               ? characters / wordList.length
+   
+               ? characters /
+                 wordList.length
+   
                : 0;
    
    
-       /* Sentence lengths */
-   
        const sentenceWordCounts =
-           sentences.map(sentence =>
-               getWords(sentence).length
+           sentences.map(
+               sentence =>
+                   getWords(
+                       sentence
+                   ).length
            );
    
    
        const averageSentenceLength =
            sentences.length > 0
-               ? wordList.length / sentences.length
+   
+               ? wordList.length /
+                 sentences.length
+   
                : 0;
    
    
        const longestSentence =
            sentenceWordCounts.length > 0
-               ? Math.max(...sentenceWordCounts)
+   
+               ? Math.max(
+                   ...sentenceWordCounts
+               )
+   
                : 0;
    
    
        const shortestSentence =
            sentenceWordCounts.length > 0
-               ? Math.min(...sentenceWordCounts)
+   
+               ? Math.min(
+                   ...sentenceWordCounts
+               )
+   
                : 0;
    
    
-       /* Simple readability */
+       let readability =
+           "—";
    
-       let readability = "—";
    
        if (
            wordList.length > 0 &&
@@ -673,9 +882,11 @@
                wordList.length /
                sentences.length;
    
+   
            const averageWordChars =
                characters /
                wordList.length;
+   
    
            const score =
                206.835 -
@@ -685,51 +896,94 @@
                ) -
                (
                    84.6 *
-                   (averageWordChars / 100)
+                   (
+                       averageWordChars /
+                       100
+                   )
                );
    
+   
            if (score >= 90) {
-               readability = "Very Easy";
+   
+               readability =
+                   "Very Easy";
+   
            } else if (score >= 80) {
-               readability = "Easy";
+   
+               readability =
+                   "Easy";
+   
            } else if (score >= 70) {
-               readability = "Fairly Easy";
+   
+               readability =
+                   "Fairly Easy";
+   
            } else if (score >= 60) {
-               readability = "Standard";
+   
+               readability =
+                   "Standard";
+   
            } else if (score >= 50) {
-               readability = "Fairly Difficult";
+   
+               readability =
+                   "Fairly Difficult";
+   
            } else if (score >= 30) {
-               readability = "Difficult";
+   
+               readability =
+                   "Difficult";
+   
            } else {
-               readability = "Very Difficult";
+   
+               readability =
+                   "Very Difficult";
            }
        }
    
    
        return {
-           words: wordList.length,
+   
+           words:
+               wordList.length,
+   
            letters,
+   
            numbers,
+   
            characters,
+   
            spaces,
+   
            punctuation,
-           sentences: sentences.length,
+   
+           sentences:
+               sentences.length,
+   
            paragraphs:
                text.trim()
-                   ? text.split(/\n\s*\n/).filter(Boolean).length
+                   ? text
+                       .split(
+                           /\n\s*\n/
+                       )
+                       .filter(Boolean)
+                       .length
+   
                    : 0,
    
            frequency,
    
            uniqueWords,
+   
            repeatedWords,
    
            longestWord,
    
            averageWordLength,
+   
            averageSentenceLength,
    
            longestSentence,
+   
            shortestSentence,
    
            readability
@@ -738,7 +992,35 @@
    
    
    /* =========================================================
-      UPDATE ALL STATISTICS
+      ESTIMATED TIME
+      ========================================================= */
+   
+   function calculateEstimatedSeconds(
+       characters
+   ) {
+   
+       const speed =
+           Number(
+               appData.settings.targetSpeed
+           ) || 68;
+   
+   
+       if (
+           characters <= 0
+       ) {
+           return 0;
+       }
+   
+   
+       return (
+           characters /
+           speed
+       ) * 60;
+   }
+   
+   
+   /* =========================================================
+      UPDATE STATISTICS
       ========================================================= */
    
    function updateStatistics() {
@@ -746,50 +1028,87 @@
        const text =
            paragraph.value;
    
+   
        const data =
-           analyzeText(text);
+           analyzeText(
+               text
+           );
    
    
        wordsEl.textContent =
            data.words;
    
+   
        lettersEl.textContent =
            data.letters;
+   
    
        numbersEl.textContent =
            data.numbers;
    
+   
        charactersEl.textContent =
            data.characters;
+   
    
        spacesEl.textContent =
            data.spaces;
    
+   
        punctuationEl.textContent =
            data.punctuation;
    
+   
        sentencesEl.textContent =
            data.sentences;
+   
    
        paragraphsEl.textContent =
            data.paragraphs;
    
    
-       charPreview.textContent =
+       $("charPreview").textContent =
            `${data.characters} letters + numbers`;
    
    
-       updateTime();
+       updateTimeAnalysis(
+           data
+       );
    
-       updateReadingTime();
    
-       updateAnalysis(data);
+       updateReadingTime(
+           data
+       );
    
-       updateGoal(data);
    
-       updateScore(data);
+       updateTextAnalysis(
+           data
+       );
    
-       updateDictationPreview();
+   
+       updateWordFrequency(
+           data
+       );
+   
+   
+       updateGoal(
+           data
+       );
+   
+   
+       updateSpeed();
+   
+   
+       updateSessionScore(
+           data
+       );
+   
+   
+       updatePersonalBestsPreview();
+   
+   
+       updateSharePreview();
+   
    
        if (
            appData.settings.autoSave
@@ -798,75 +1117,77 @@
            appData.paragraph =
                text;
    
-           appData.timer.elapsed =
-               elapsedMilliseconds;
-   
            saveData();
        }
    }
    
    
    /* =========================================================
-      TIME CALCULATIONS
+      TIME ANALYSIS
       ========================================================= */
    
-   function updateTime() {
+   function updateTimeAnalysis(data) {
    
-       const characterCount =
-           getCharacterCount(
-               paragraph.value
-           );
-   
-   
-       const estimatedSeconds =
+       const estimated =
            calculateEstimatedSeconds(
-               characterCount
+               data.characters
            );
+   
+   
+       const actual =
+           elapsedMilliseconds /
+           1000;
    
    
        estimatedTimeEl.textContent =
            formatTime(
-               estimatedSeconds
+               estimated
            );
-   
-   
-       const actualSeconds =
-           elapsedMilliseconds / 1000;
    
    
        actualTimeEl.textContent =
            formatTime(
-               actualSeconds
+               actual
            );
    
    
        const difference =
-           actualSeconds -
-           estimatedSeconds;
+           Math.abs(
+               actual -
+               estimated
+           );
    
    
        timeDifferenceEl.textContent =
            formatTime(
-               Math.abs(difference)
+               difference
            );
    
    
-       if (characterCount === 0) {
+       if (
+           data.characters === 0
+       ) {
    
            differenceLabelEl.textContent =
                "No paragraph yet";
    
-       } else if (actualSeconds === 0) {
+       } else if (
+           actual === 0
+       ) {
    
            differenceLabelEl.textContent =
                "Start the timer to compare";
    
-       } else if (difference > 0) {
+       } else if (
+           actual > estimated
+       ) {
    
            differenceLabelEl.textContent =
                "Slower than estimated";
    
-       } else if (difference < 0) {
+       } else if (
+           actual < estimated
+       ) {
    
            differenceLabelEl.textContent =
                "Faster than estimated";
@@ -883,13 +1204,7 @@
       READING TIME
       ========================================================= */
    
-   function updateReadingTime() {
-   
-       const words =
-           getWords(
-               paragraph.value
-           ).length;
-   
+   function updateReadingTime(data) {
    
        const speed =
            Number(
@@ -898,13 +1213,20 @@
    
    
        const seconds =
-           words > 0
-               ? words / speed * 60
+           data.words > 0
+   
+               ? (
+                   data.words /
+                   speed
+               ) * 60
+   
                : 0;
    
    
        readingTimeEl.textContent =
-           formatTime(seconds);
+           formatTime(
+               seconds
+           );
    }
    
    
@@ -912,75 +1234,170 @@
       TEXT ANALYSIS UI
       ========================================================= */
    
-   function updateAnalysis(data) {
+   function updateTextAnalysis(data) {
    
        averageWordLengthEl.textContent =
            data.averageWordLength.toFixed(2);
    
+   
        averageSentenceLengthEl.textContent =
            data.averageSentenceLength.toFixed(2);
+   
    
        longestWordEl.textContent =
            data.longestWord;
    
+   
        uniqueWordsEl.textContent =
            data.uniqueWords;
+   
    
        longestSentenceEl.textContent =
            data.longestSentence;
    
+   
        shortestSentenceEl.textContent =
            data.shortestSentence;
+   
    
        readabilityEl.textContent =
            data.readability;
    
+   
        repeatedWordsEl.textContent =
            data.repeatedWords;
+   }
    
    
-       const repeated =
-           Object.entries(data.frequency)
-               .filter(
-                   ([, count]) => count > 1
-               )
-               .sort(
-                   (a, b) => b[1] - a[1]
-               );
+   /* =========================================================
+      WORD FREQUENCY 2.0
+      ========================================================= */
+   
+   function updateWordFrequency(data) {
+   
+       const entries =
+           Object.entries(
+               data.frequency
+           );
    
    
-       if (repeated.length === 0) {
+       if (
+           entries.length === 0
+       ) {
    
-           wordFrequencyEl.textContent =
-               "No repeated words yet.";
+           wordFrequencyEl.innerHTML =
+               `
+                   <div class="empty-state">
+                       Start writing to see word frequency.
+                   </div>
+               `;
    
            return;
        }
    
    
-       wordFrequencyEl.innerHTML =
-           repeated
-               .slice(0, 20)
-               .map(
-                   ([word, count]) => `
-                       <span class="frequency-tag">
-                           ${escapeHTML(word)}
-                           ×${count}
-                       </span>
-                   `
+       entries.sort(
+           (a, b) =>
+               b[1] - a[1] ||
+               a[0].localeCompare(
+                   b[0]
                )
-               .join(" ");
-   }
+       );
    
    
-   function escapeHTML(text) {
+       const selected =
+           frequencyMode === "top"
    
-       return String(text)
-           .replaceAll("&", "&amp;")
-           .replaceAll("<", "&lt;")
-           .replaceAll(">", "&gt;")
-           .replaceAll('"', "&quot;")
-           .replaceAll("'", "&#039;");
+               ? entries.slice(
+                   0,
+                   10
+               )
+   
+               : entries;
+   
+   
+       const totalWords =
+           data.words || 1;
+   
+   
+       wordFrequencyEl.innerHTML =
+           `
+               <table class="frequency-table">
+   
+                   <thead>
+   
+                       <tr>
+   
+                           <th>Rank</th>
+   
+                           <th>Word</th>
+   
+                           <th>Count</th>
+   
+                           <th>Usage</th>
+   
+                       </tr>
+   
+                   </thead>
+   
+                   <tbody>
+   
+                       ${selected
+                           .map(
+                               (
+                                   [word, count],
+                                   index
+                               ) => {
+   
+                                   const percentage =
+                                       (
+                                           count /
+                                           totalWords
+                                       ) *
+                                       100;
+   
+   
+                                   return `
+   
+                                       <tr>
+   
+                                           <td
+                                               class="frequency-rank"
+                                           >
+                                               ${index + 1}
+                                           </td>
+   
+                                           <td
+                                               class="frequency-word"
+                                           >
+                                               ${escapeHTML(
+                                                   word
+                                               )}
+                                           </td>
+   
+                                           <td
+                                               class="frequency-count"
+                                           >
+                                               ${count}
+                                           </td>
+   
+                                           <td
+                                               class="frequency-percentage"
+                                           >
+                                               ${percentage.toFixed(1)}%
+                                           </td>
+   
+                                       </tr>
+   
+                                   `;
+                               }
+                           )
+                           .join("")}
+   
+                   </tbody>
+   
+               </table>
+           `;
    }
    
    
@@ -988,44 +1405,68 @@
       WRITING SPEED
       ========================================================= */
    
-   function updateSpeed() {
+   function getCurrentCPM() {
    
        const seconds =
-           elapsedMilliseconds / 1000;
+           elapsedMilliseconds /
+           1000;
    
-       const text =
-           paragraph.value;
-   
-       const words =
-           getWords(text).length;
    
        const characters =
-           getCharacterCount(text);
+           getCharacterCount(
+               paragraph.value
+           );
    
    
-       if (seconds <= 0) {
-   
-           cpmEl.textContent = "0";
-   
-           wpmEl.textContent = "0";
-   
-           speedDifferenceEl.textContent =
-               "0";
-   
-           return;
+       if (
+           seconds <= 0
+       ) {
+           return 0;
        }
    
    
-       const cpm =
+       return (
            characters /
-           seconds *
-           60;
+           seconds
+       ) * 60;
+   }
+   
+   
+   function getCurrentWPM() {
+   
+       const seconds =
+           elapsedMilliseconds /
+           1000;
+   
+   
+       const words =
+           getWords(
+               paragraph.value
+           ).length;
+   
+   
+       if (
+           seconds <= 0
+       ) {
+           return 0;
+       }
+   
+   
+       return (
+           words /
+           seconds
+       ) * 60;
+   }
+   
+   
+   function updateSpeed() {
+   
+       const cpm =
+           getCurrentCPM();
    
    
        const wpm =
-           words /
-           seconds *
-           60;
+           getCurrentWPM();
    
    
        const target =
@@ -1035,16 +1476,34 @@
    
    
        cpmEl.textContent =
-           Math.round(cpm);
+           Math.round(
+               cpm
+           );
+   
    
        wpmEl.textContent =
-           Math.round(wpm);
+           Math.round(
+               wpm
+           );
+   
    
        speedDifferenceEl.textContent =
-           `${Math.round(cpm - target)}`;
+           Math.round(
+               cpm -
+               target
+           );
+   
    
        targetSpeedEl.textContent =
            target;
+   
+   
+       targetSpeedCardEl.textContent =
+           target;
+   
+   
+       chartCurrentSpeedEl.textContent =
+           `${Math.round(cpm)} CPM`;
    }
    
    
@@ -1054,14 +1513,40 @@
    
    function startTimer() {
    
-       if (timerRunning) {
+       if (
+           timerRunning
+       ) {
            return;
        }
    
    
-       timerRunning = true;
+       if (
+           !appData.currentSession.started
+       ) {
    
-       timerStartTime =
+           appData.currentSession.started =
+               true;
+   
+           appData.currentSession.completed =
+               false;
+   
+           sessionSamples = [];
+   
+           lastCharacterCount =
+               getCharacterCount(
+                   paragraph.value
+               );
+   
+           lastSampleTimestamp =
+               Date.now();
+       }
+   
+   
+       timerRunning =
+           true;
+   
+   
+       timerStartTimestamp =
            Date.now() -
            elapsedMilliseconds;
    
@@ -1071,44 +1556,75 @@
    
    
        timerInterval =
-           setInterval(() => {
-   
-               elapsedMilliseconds =
-                   Date.now() -
-                   timerStartTime;
-   
-               updateTimerDisplay();
-   
-               updateTime();
-   
-               updateSpeed();
-   
-               updateScore(
-                   analyzeText(
-                       paragraph.value
-                   )
-               );
-   
-           }, 100);
+           setInterval(
+               timerTick,
+               100
+           );
    
    
        updateTimerButtons();
    }
    
    
+   function timerTick() {
+   
+       elapsedMilliseconds =
+           Date.now() -
+           timerStartTimestamp;
+   
+   
+       appData.currentSession.elapsed =
+           elapsedMilliseconds;
+   
+   
+       updateTimerDisplay();
+   
+   
+       updateTimeAnalysis(
+           analyzeText(
+               paragraph.value
+           )
+       );
+   
+   
+       updateSpeed();
+   
+   
+       updateSessionScore(
+           analyzeText(
+               paragraph.value
+           )
+       );
+   
+   
+       captureSpeedSample();
+   
+   
+       if (
+           appData.settings.autoSave
+       ) {
+   
+           saveData();
+       }
+   }
+   
+   
    function pauseTimer() {
    
-       if (!timerRunning) {
+       if (
+           !timerRunning
+       ) {
            return;
        }
    
    
        elapsedMilliseconds =
            Date.now() -
-           timerStartTime;
+           timerStartTimestamp;
    
    
-       timerRunning = false;
+       timerRunning =
+           false;
    
    
        clearInterval(
@@ -1116,60 +1632,110 @@
        );
    
    
-       timerInterval = null;
+       timerInterval =
+           null;
    
    
-       appData.timer.elapsed =
+       appData.currentSession.elapsed =
            elapsedMilliseconds;
-   
-   
-       saveData();
    
    
        liveStatus.textContent =
            "Paused";
    
    
+       saveData();
+   
+   
        updateTimerButtons();
    
-       updateTime();
+   
+       updateTimerDisplay();
    
        updateSpeed();
+   
+       updateSessionScore(
+           analyzeText(
+               paragraph.value
+           )
+       );
    }
    
    
    function resetTimer() {
    
-       timerRunning = false;
+       /*
+          Finish and save the session.
+       */
+   
+       if (
+           paragraph.value.trim() &&
+           elapsedMilliseconds > 0
+       ) {
+   
+           saveSession();
+       }
+   
+   
+       timerRunning =
+           false;
+   
    
        clearInterval(
            timerInterval
        );
    
-       timerInterval = null;
    
-       elapsedMilliseconds = 0;
+       timerInterval =
+           null;
    
-       appData.timer.elapsed = 0;
    
-       saveData();
+       elapsedMilliseconds =
+           0;
+   
+   
+       sessionSamples = [];
+   
+   
+       appData.currentSession = {
+   
+           elapsed: 0,
+   
+           started: false,
+   
+           completed: false
+   
+       };
+   
    
        updateTimerDisplay();
    
-       updateTime();
    
        updateSpeed();
    
-       updateScore(
+   
+       updateTimeAnalysis(
            analyzeText(
                paragraph.value
            )
        );
    
+   
+       updateSessionScore(
+           analyzeText(
+               paragraph.value
+           )
+       );
+   
+   
        liveStatus.textContent =
            "Ready";
    
+   
        updateTimerButtons();
+   
+   
+       saveData();
    }
    
    
@@ -1177,7 +1743,8 @@
    
        stopwatchEl.textContent =
            formatTime(
-               elapsedMilliseconds / 1000
+               elapsedMilliseconds /
+               1000
            );
    }
    
@@ -1187,8 +1754,504 @@
        startTimerBtn.disabled =
            timerRunning;
    
+   
        pauseTimerBtn.disabled =
            !timerRunning;
+   }
+   
+   
+   /* =========================================================
+      REAL-TIME CPM SAMPLING
+      ========================================================= */
+   
+   function captureSpeedSample() {
+   
+       const now =
+           Date.now();
+   
+   
+       if (
+           lastSampleTimestamp === 0
+       ) {
+   
+           lastSampleTimestamp =
+               now;
+   
+           return;
+       }
+   
+   
+       const deltaTime =
+           now -
+           lastSampleTimestamp;
+   
+   
+       if (
+           deltaTime < 900
+       ) {
+           return;
+       }
+   
+   
+       const currentCharacters =
+           getCharacterCount(
+               paragraph.value
+           );
+   
+   
+       const added =
+           Math.max(
+               0,
+               currentCharacters -
+               lastCharacterCount
+           );
+   
+   
+       const cpm =
+           (
+               added /
+               (
+                   deltaTime /
+                   1000
+               )
+           ) * 60;
+   
+   
+       /*
+          Only record reasonable samples.
+   
+          This prevents a huge CPM spike when
+          a user pastes an entire paragraph.
+       */
+   
+       if (
+           cpm >= 0 &&
+           cpm <= 1000
+       ) {
+   
+           sessionSamples.push({
+   
+               time:
+                   elapsedMilliseconds /
+                   1000,
+   
+               cpm
+   
+           });
+       }
+   
+   
+       lastCharacterCount =
+           currentCharacters;
+   
+   
+       lastSampleTimestamp =
+           now;
+   
+   
+       drawPerformanceChart();
+   }
+   
+   
+   /* =========================================================
+      CPM GRAPH
+      ========================================================= */
+   
+   function drawPerformanceChart() {
+   
+       const canvas =
+           $("performanceCanvas");
+   
+   
+       if (!canvas) {
+           return;
+       }
+   
+   
+       const rect =
+           canvas.getBoundingClientRect();
+   
+   
+       const width =
+           Math.max(
+               250,
+               rect.width
+           );
+   
+   
+       const height =
+           250;
+   
+   
+       const dpr =
+           window.devicePixelRatio ||
+           1;
+   
+   
+       canvas.width =
+           width * dpr;
+   
+   
+       canvas.height =
+           height * dpr;
+   
+   
+       const ctx =
+           canvas.getContext(
+               "2d"
+           );
+   
+   
+       ctx.setTransform(
+           dpr,
+           0,
+           0,
+           dpr,
+           0,
+           0
+       );
+   
+   
+       ctx.clearRect(
+           0,
+           0,
+           width,
+           height
+       );
+   
+   
+       const styles =
+           getComputedStyle(
+               document.body
+           );
+   
+   
+       const border =
+           styles
+               .getPropertyValue(
+                   "--border"
+               )
+               .trim();
+   
+   
+       const muted =
+           styles
+               .getPropertyValue(
+                   "--muted"
+               )
+               .trim();
+   
+   
+       const primary =
+           styles
+               .getPropertyValue(
+                   "--primary"
+               )
+               .trim();
+   
+   
+       const padding =
+           35;
+   
+   
+       const chartWidth =
+           width -
+           padding * 2;
+   
+   
+       const chartHeight =
+           height -
+           padding * 2;
+   
+   
+       /* Grid */
+   
+       ctx.strokeStyle =
+           border;
+   
+   
+       ctx.lineWidth =
+           1;
+   
+   
+       for (
+           let i = 0;
+           i <= 4;
+           i++
+       ) {
+   
+           const y =
+               padding +
+               (
+                   chartHeight *
+                   i /
+                   4
+               );
+   
+   
+           ctx.beginPath();
+   
+           ctx.moveTo(
+               padding,
+               y
+           );
+   
+           ctx.lineTo(
+               width -
+               padding,
+               y
+           );
+   
+           ctx.stroke();
+       }
+   
+   
+       const samples =
+           sessionSamples;
+   
+   
+       if (
+           samples.length === 0
+       ) {
+   
+           ctx.fillStyle =
+               muted;
+   
+           ctx.font =
+               "12px system-ui";
+   
+           ctx.textAlign =
+               "center";
+   
+           ctx.fillText(
+               "Start writing to see your CPM graph.",
+               width / 2,
+               height / 2
+           );
+   
+           return;
+       }
+   
+   
+       const maxCPM =
+           Math.max(
+               100,
+               Number(
+                   appData.settings.targetSpeed
+               ) || 68,
+               ...samples.map(
+                   sample =>
+                       sample.cpm
+               )
+           );
+   
+   
+       /* Target line */
+   
+       const target =
+           Number(
+               appData.settings.targetSpeed
+           ) || 68;
+   
+   
+       const targetY =
+           padding +
+           chartHeight *
+           (
+               1 -
+               target /
+               maxCPM
+           );
+   
+   
+       ctx.setLineDash(
+           [
+               5,
+               5
+           ]
+       );
+   
+   
+       ctx.strokeStyle =
+           muted;
+   
+   
+       ctx.beginPath();
+   
+       ctx.moveTo(
+           padding,
+           targetY
+       );
+   
+       ctx.lineTo(
+           width -
+           padding,
+           targetY
+       );
+   
+       ctx.stroke();
+   
+   
+       ctx.setLineDash([]);
+   
+   
+       /* Main line */
+   
+       const maxTime =
+           Math.max(
+               1,
+               ...samples.map(
+                   sample =>
+                       sample.time
+               )
+           );
+   
+   
+       ctx.strokeStyle =
+           primary;
+   
+   
+       ctx.lineWidth =
+           3;
+   
+   
+       ctx.beginPath();
+   
+   
+       samples.forEach(
+           (
+               sample,
+               index
+           ) => {
+   
+               const x =
+                   padding +
+                   (
+                       sample.time /
+                       maxTime
+                   ) *
+                   chartWidth;
+   
+   
+               const y =
+                   padding +
+                   chartHeight *
+                   (
+                       1 -
+                       sample.cpm /
+                       maxCPM
+                   );
+   
+   
+               if (
+                   index === 0
+               ) {
+   
+                   ctx.moveTo(
+                       x,
+                       y
+                   );
+   
+               } else {
+   
+                   ctx.lineTo(
+                       x,
+                       y
+                   );
+               }
+           }
+       );
+   
+   
+       ctx.stroke();
+   
+   
+       /* Points */
+   
+       ctx.fillStyle =
+           primary;
+   
+   
+       samples.forEach(
+           sample => {
+   
+               const x =
+                   padding +
+                   (
+                       sample.time /
+                       maxTime
+                   ) *
+                   chartWidth;
+   
+   
+               const y =
+                   padding +
+                   chartHeight *
+                   (
+                       1 -
+                       sample.cpm /
+                       maxCPM
+                   );
+   
+   
+               ctx.beginPath();
+   
+               ctx.arc(
+                   x,
+                   y,
+                   3,
+                   0,
+                   Math.PI * 2
+               );
+   
+               ctx.fill();
+           }
+       );
+   
+   
+       /* Y labels */
+   
+       ctx.fillStyle =
+           muted;
+   
+       ctx.font =
+           "10px system-ui";
+   
+       ctx.textAlign =
+           "right";
+   
+   
+       for (
+           let i = 0;
+           i <= 4;
+           i++
+       ) {
+   
+           const value =
+               Math.round(
+                   maxCPM *
+                   (
+                       1 -
+                       i / 4
+                   )
+               );
+   
+   
+           const y =
+               padding +
+               (
+                   chartHeight *
+                   i /
+                   4
+               );
+   
+   
+           ctx.fillText(
+               value,
+               padding - 7,
+               y + 3
+           );
+       }
    }
    
    
@@ -1198,41 +2261,62 @@
    
    function updateGoal(data) {
    
-       const type =
-           appData.goal.type;
-   
        const target =
-           Number(
-               appData.goal.target
-           ) || 1;
+           Math.max(
+               1,
+               Number(
+                   appData.goal.target
+               ) || 1
+           );
    
    
-       let current = 0;
+       let current =
+           0;
    
-       let unit = "";
+   
+       let unit =
+           "words";
    
    
-       if (type === "letters") {
+       if (
+           appData.goal.type ===
+           "letters"
+       ) {
    
-           current = data.letters;
-           unit = "letters";
+           current =
+               data.letters;
    
-       } else if (type === "characters") {
+           unit =
+               "letters";
    
-           current = data.characters;
-           unit = "characters";
+       } else if (
+           appData.goal.type ===
+           "characters"
+       ) {
+   
+           current =
+               data.characters;
+   
+           unit =
+               "characters";
    
        } else {
    
-           current = data.words;
-           unit = "words";
+           current =
+               data.words;
+   
+           unit =
+               "words";
        }
    
    
        const percentage =
            Math.min(
                100,
-               current / target * 100
+               (
+                   current /
+                   target
+               ) * 100
            );
    
    
@@ -1241,25 +2325,26 @@
    
    
        goalPercentageEl.textContent =
-           `${Math.round(percentage)}%`;
+           `${Math.round(
+               percentage
+           )}%`;
    
    
        goalProgressBarEl.style.width =
            `${percentage}%`;
    
    
-       if (current >= target) {
+       if (
+           current >= target
+       ) {
    
            goalStatusEl.textContent =
                "🎉 Goal completed!";
    
        } else {
    
-           const remaining =
-               target - current;
-   
            goalStatusEl.textContent =
-               `${remaining} ${unit} remaining to reach your goal.`;
+               `${target - current} ${unit} remaining to reach your goal.`;
        }
    }
    
@@ -1269,24 +2354,34 @@
        const type =
            goalTypeEl.value;
    
+   
        let target =
            Number(
                goalTargetEl.value
            );
    
    
-       if (!Number.isFinite(target) || target < 1) {
+       if (
+           !Number.isFinite(
+               target
+           ) ||
+           target < 1
+       ) {
    
-           target = 1;
+           target =
+               1;
    
            goalTargetEl.value =
-               target;
+               1;
        }
    
    
        appData.goal = {
+   
            type,
+   
            target
+   
        };
    
    
@@ -1298,70 +2393,101 @@
                paragraph.value
            )
        );
+   
+   
+       updateSessionScore(
+           analyzeText(
+               paragraph.value
+           )
+       );
    }
    
    
    /* =========================================================
-      SCORE
+      SESSION SCORE 2.0
       ========================================================= */
    
-   function updateScore(data) {
+   function calculateScore(data) {
    
-       const target =
+       /*
+          TOTAL = 100
+   
+          Speed        30
+          Goal         25
+          Accuracy     20
+          Consistency  15
+          Completion   10
+       */
+   
+   
+       const actualSeconds =
+           elapsedMilliseconds /
+           1000;
+   
+   
+       const targetCPM =
            Number(
                appData.settings.targetSpeed
            ) || 68;
    
    
-       const seconds =
-           elapsedMilliseconds / 1000;
+       const actualCPM =
+           getCurrentCPM();
    
    
-       let currentCPM = 0;
+       /* -----------------------------------------
+          1. SPEED — 30
+          ----------------------------------------- */
+   
+       let speedScore =
+           0;
    
    
-       if (seconds > 0) {
-   
-           currentCPM =
-               data.characters /
-               seconds *
-               60;
-       }
-   
-   
-       let speedScore = 0;
-   
-   
-       if (currentCPM > 0) {
+       if (
+           actualCPM > 0
+       ) {
    
            speedScore =
                Math.min(
-                   40,
+                   30,
                    Math.round(
-                       currentCPM /
-                       target *
-                       40
+                       (
+                           actualCPM /
+                           targetCPM
+                       ) * 30
                    )
                );
        }
    
    
+       /* -----------------------------------------
+          2. GOAL — 25
+          ----------------------------------------- */
+   
        const goalTarget =
-           Number(
-               appData.goal.target
-           ) || 1;
+           Math.max(
+               1,
+               Number(
+                   appData.goal.target
+               ) || 1
+           );
    
    
-       let goalCurrent = 0;
+       let goalCurrent =
+           0;
    
    
-       if (appData.goal.type === "letters") {
+       if (
+           appData.goal.type ===
+           "letters"
+       ) {
    
            goalCurrent =
                data.letters;
    
        } else if (
-           appData.goal.type === "characters"
+           appData.goal.type ===
+           "characters"
        ) {
    
            goalCurrent =
@@ -1374,74 +2500,1133 @@
        }
    
    
-       const goalScore =
+       const goalPercentage =
            Math.min(
-               30,
-               Math.round(
-                   goalCurrent /
-                   goalTarget *
-                   30
-               )
+               1,
+               goalCurrent /
+               goalTarget
            );
    
    
-       let consistencyScore = 0;
+       const goalScore =
+           Math.round(
+               goalPercentage *
+               25
+           );
+   
+   
+       /* -----------------------------------------
+          3. TIME ACCURACY — 20
+          ----------------------------------------- */
+   
+       let accuracyScore =
+           0;
+   
+   
+       const estimatedSeconds =
+           calculateEstimatedSeconds(
+               data.characters
+           );
    
    
        if (
-           elapsedMilliseconds > 0 &&
+           actualSeconds > 0 &&
+           estimatedSeconds > 0
+       ) {
+   
+           const difference =
+               Math.abs(
+                   actualSeconds -
+                   estimatedSeconds
+               );
+   
+   
+           const differenceRatio =
+               difference /
+               estimatedSeconds;
+   
+   
+           if (
+               differenceRatio <= 0.05
+           ) {
+   
+               accuracyScore =
+                   20;
+   
+           } else if (
+               differenceRatio <= 0.10
+           ) {
+   
+               accuracyScore =
+                   18;
+   
+           } else if (
+               differenceRatio <= 0.15
+           ) {
+   
+               accuracyScore =
+                   16;
+   
+           } else if (
+               differenceRatio <= 0.20
+           ) {
+   
+               accuracyScore =
+                   14;
+   
+           } else if (
+               differenceRatio <= 0.30
+           ) {
+   
+               accuracyScore =
+                   10;
+   
+           } else if (
+               differenceRatio <= 0.50
+           ) {
+   
+               accuracyScore =
+                   6;
+   
+           } else {
+   
+               accuracyScore =
+                   2;
+           }
+       }
+   
+   
+       /* -----------------------------------------
+          4. CONSISTENCY — 15
+          ----------------------------------------- */
+   
+       let consistencyScore =
+           0;
+   
+   
+       if (
+           sessionSamples.length >= 2
+       ) {
+   
+           const values =
+               sessionSamples.map(
+                   sample =>
+                       sample.cpm
+               );
+   
+   
+           const average =
+               values.reduce(
+                   (
+                       total,
+                       value
+                   ) =>
+                       total + value,
+                   0
+               ) /
+               values.length;
+   
+   
+           if (
+               average > 0
+           ) {
+   
+               const variance =
+                   values.reduce(
+                       (
+                           total,
+                           value
+                       ) =>
+                           total +
+                           Math.pow(
+                               value -
+                               average,
+                               2
+                           ),
+                       0
+                   ) /
+                   values.length;
+   
+   
+               const standardDeviation =
+                   Math.sqrt(
+                       variance
+                   );
+   
+   
+               const coefficient =
+                   standardDeviation /
+                   average;
+   
+   
+               if (
+                   coefficient <= 0.05
+               ) {
+   
+                   consistencyScore =
+                       15;
+   
+               } else if (
+                   coefficient <= 0.10
+               ) {
+   
+                   consistencyScore =
+                       13;
+   
+               } else if (
+                   coefficient <= 0.15
+               ) {
+   
+                   consistencyScore =
+                       11;
+   
+               } else if (
+                   coefficient <= 0.20
+               ) {
+   
+                   consistencyScore =
+                       9;
+   
+               } else if (
+                   coefficient <= 0.30
+               ) {
+   
+                   consistencyScore =
+                       6;
+   
+               } else {
+   
+                   consistencyScore =
+                       3;
+               }
+           }
+       }
+   
+   
+       /* -----------------------------------------
+          5. COMPLETION — 10
+          ----------------------------------------- */
+   
+       let completionScore =
+           0;
+   
+   
+       if (
            data.characters > 0
        ) {
    
-           consistencyScore = 30;
+           completionScore =
+               5;
+       }
+   
+   
+       if (
+           appData.currentSession.completed
+       ) {
+   
+           completionScore =
+               10;
+       }
+   
+   
+       const total =
+           Math.min(
+               100,
+               speedScore +
+               goalScore +
+               accuracyScore +
+               consistencyScore +
+               completionScore
+           );
+   
+   
+       return {
+   
+           total,
+   
+           speedScore,
+   
+           goalScore,
+   
+           accuracyScore,
+   
+           consistencyScore,
+   
+           completionScore
+       };
+   }
+   
+   
+   function updateSessionScore(data) {
+   
+       const score =
+           calculateScore(
+               data
+           );
+   
+   
+       sessionScoreEl.textContent =
+           score.total;
+   
+   
+       speedScoreEl.textContent =
+           `${score.speedScore}/30`;
+   
+   
+       goalScoreEl.textContent =
+           `${score.goalScore}/25`;
+   
+   
+       accuracyScoreEl.textContent =
+           `${score.accuracyScore}/20`;
+   
+   
+       consistencyScoreEl.textContent =
+           `${score.consistencyScore}/15`;
+   
+   
+       completionScoreEl.textContent =
+           `${score.completionScore}/10`;
+   
+   
+       let message =
+           "Start writing to calculate your score.";
+   
+   
+       if (
+           score.total >= 90
+       ) {
+   
+           message =
+               "🔥 Exceptional performance!";
+   
+       } else if (
+           score.total >= 80
+       ) {
+   
+           message =
+               "⭐ Excellent performance!";
+   
+       } else if (
+           score.total >= 70
+       ) {
+   
+           message =
+               "👍 Good performance!";
+   
+       } else if (
+           score.total >= 60
+       ) {
+   
+           message =
+               "Keep going — you're improving.";
+   
+       } else if (
+           score.total >= 40
+       ) {
+   
+           message =
+               "A solid start. Keep practicing.";
    
        } else if (
            data.characters > 0
        ) {
    
-           consistencyScore = 10;
+           message =
+               "Keep practicing to improve your score.";
        }
    
    
-       const total =
-           speedScore +
-           goalScore +
-           consistencyScore;
+       scoreMessageEl.textContent =
+           message;
+   }
    
    
-       sessionScoreEl.textContent =
-           total;
+   /* =========================================================
+      SESSION SAVE
+      ========================================================= */
    
-       speedScoreEl.textContent =
-           `${speedScore}/40`;
+   function saveSession() {
    
-       goalScoreEl.textContent =
-           `${goalScore}/30`;
-   
-       consistencyScoreEl.textContent =
-           `${consistencyScore}/30`;
+       const data =
+           analyzeText(
+               paragraph.value
+           );
    
    
-       if (total >= 90) {
+       if (
+           data.characters <= 0
+       ) {
+           return;
+       }
    
-           scoreMessageEl.textContent =
-               "🔥 Excellent performance!";
    
-       } else if (total >= 70) {
+       const seconds =
+           elapsedMilliseconds /
+           1000;
    
-           scoreMessageEl.textContent =
-               "⭐ Great work. Keep improving.";
    
-       } else if (total >= 40) {
+       if (
+           seconds <= 0
+       ) {
+           return;
+       }
    
-           scoreMessageEl.textContent =
-               "👍 Good start. Keep practicing.";
+   
+       /*
+          Mark session complete BEFORE
+          calculating the final score.
+       */
+   
+       appData.currentSession.completed =
+           true;
+   
+   
+       const finalScore =
+           calculateScore(
+               data
+           );
+   
+   
+       const session = {
+   
+           id:
+               Date.now(),
+   
+           date:
+               new Date().toISOString(),
+   
+           preview:
+               paragraph.value
+                   .replace(
+                       /\s+/g,
+                       " "
+                   )
+                   .trim()
+                   .slice(
+                       0,
+                       100
+                   ),
+   
+           words:
+               data.words,
+   
+           letters:
+               data.letters,
+   
+           characters:
+               data.characters,
+   
+           time:
+               seconds,
+   
+           estimatedTime:
+               calculateEstimatedSeconds(
+                   data.characters
+               ),
+   
+           cpm:
+               getCurrentCPM(),
+   
+           wpm:
+               getCurrentWPM(),
+   
+           score:
+               finalScore.total,
+   
+           speedScore:
+               finalScore.speedScore,
+   
+           goalScore:
+               finalScore.goalScore,
+   
+           accuracyScore:
+               finalScore.accuracyScore,
+   
+           consistencyScore:
+               finalScore.consistencyScore,
+   
+           completionScore:
+               finalScore.completionScore
+       };
+   
+   
+       appData.history.unshift(
+           session
+       );
+   
+   
+       appData.history =
+           appData.history.slice(
+               0,
+               50
+           );
+   
+   
+       updateSessionScore(
+           data
+       );
+   
+   
+       renderHistory();
+   
+       updatePersonalBests();
+   
+       updateComparison();
+   
+       updateSharePreview();
+   
+       drawPerformanceChart();
+   
+   
+       saveData();
+   }
+   
+   
+   /* =========================================================
+      PERSONAL BESTS
+      ========================================================= */
+   
+   function updatePersonalBests() {
+   
+       const history =
+           appData.history;
+   
+   
+       if (
+           history.length === 0
+       ) {
+   
+           bestCPMEl.textContent =
+               "0";
+   
+           bestWPMEl.textContent =
+               "0";
+   
+           bestScoreEl.textContent =
+               "0";
+   
+           mostWordsEl.textContent =
+               "0";
+   
+           longestSessionEl.textContent =
+               "0:00";
+   
+           return;
+       }
+   
+   
+       const bestCPM =
+           Math.max(
+               ...history.map(
+                   session =>
+                       Number(
+                           session.cpm
+                       ) || 0
+               )
+           );
+   
+   
+       const bestWPM =
+           Math.max(
+               ...history.map(
+                   session =>
+                       Number(
+                           session.wpm
+                       ) || 0
+               )
+           );
+   
+   
+       const bestScore =
+           Math.max(
+               ...history.map(
+                   session =>
+                       Number(
+                           session.score
+                       ) || 0
+               )
+           );
+   
+   
+       const mostWords =
+           Math.max(
+               ...history.map(
+                   session =>
+                       Number(
+                           session.words
+                       ) || 0
+               )
+           );
+   
+   
+       const longestSession =
+           Math.max(
+               ...history.map(
+                   session =>
+                       Number(
+                           session.time
+                       ) || 0
+               )
+           );
+   
+   
+       bestCPMEl.textContent =
+           Math.round(
+               bestCPM
+           );
+   
+   
+       bestWPMEl.textContent =
+           Math.round(
+               bestWPM
+           );
+   
+   
+       bestScoreEl.textContent =
+           Math.round(
+               bestScore
+           );
+   
+   
+       mostWordsEl.textContent =
+           mostWords;
+   
+   
+       longestSessionEl.textContent =
+           formatTime(
+               longestSession
+           );
+   }
+   
+   
+   function updatePersonalBestsPreview() {
+   
+       updatePersonalBests();
+   }
+   
+   
+   /* =========================================================
+      SESSION COMPARISON
+      ========================================================= */
+   
+   function updateComparison() {
+   
+       if (
+           appData.history.length < 2
+       ) {
+   
+           comparisonWordsEl.textContent =
+               "—";
+   
+           comparisonCPMEl.textContent =
+               "—";
+   
+           comparisonScoreEl.textContent =
+               "—";
+   
+           comparisonTimeEl.textContent =
+               "—";
+   
+           comparisonMessageEl.textContent =
+               "Complete at least two sessions to compare your performance.";
+   
+           return;
+       }
+   
+   
+       const current =
+           appData.history[0];
+   
+   
+       const previous =
+           appData.history[1];
+   
+   
+       const wordDifference =
+           current.words -
+           previous.words;
+   
+   
+       const cpmDifference =
+           current.cpm -
+           previous.cpm;
+   
+   
+       const scoreDifference =
+           current.score -
+           previous.score;
+   
+   
+       const timeDifference =
+           current.time -
+           previous.time;
+   
+   
+       comparisonWordsEl.textContent =
+           formatSigned(
+               wordDifference
+           );
+   
+   
+       comparisonCPMEl.textContent =
+           formatSigned(
+               Math.round(
+                   cpmDifference
+               )
+           );
+   
+   
+       comparisonScoreEl.textContent =
+           formatSigned(
+               Math.round(
+                   scoreDifference
+               )
+           );
+   
+   
+       comparisonTimeEl.textContent =
+           formatSignedTime(
+               timeDifference
+           );
+   
+   
+       let improvements =
+           0;
+   
+   
+       if (
+           wordDifference > 0
+       ) {
+           improvements++;
+       }
+   
+   
+       if (
+           cpmDifference > 0
+       ) {
+           improvements++;
+       }
+   
+   
+       if (
+           scoreDifference > 0
+       ) {
+           improvements++;
+       }
+   
+   
+       /*
+          For time, lower can be better,
+          but only when the user maintained
+          or increased output.
+       */
+   
+       if (
+           timeDifference < 0 &&
+           wordDifference >= 0
+       ) {
+   
+           improvements++;
+       }
+   
+   
+       if (
+           improvements >= 3
+       ) {
+   
+           comparisonMessageEl.textContent =
+               "🔥 Strong improvement compared with your previous session.";
+   
+       } else if (
+           improvements === 2
+       ) {
+   
+           comparisonMessageEl.textContent =
+               "📈 You're improving in several areas.";
+   
+       } else if (
+           improvements === 1
+       ) {
+   
+           comparisonMessageEl.textContent =
+               "👍 You improved in one major area.";
    
        } else {
    
-           scoreMessageEl.textContent =
-               "Start writing to improve your score.";
+           comparisonMessageEl.textContent =
+               "Keep practicing — consistency will improve your results.";
        }
+   }
+   
+   
+   function formatSigned(value) {
+   
+       value =
+           Number(value) || 0;
+   
+   
+       if (
+           value > 0
+       ) {
+   
+           return `+${value}`;
+   
+       }
+   
+   
+       return String(
+           value
+       );
+   }
+   
+   
+   function formatSignedTime(seconds) {
+   
+       seconds =
+           Number(seconds) || 0;
+   
+   
+       if (
+           seconds === 0
+       ) {
+           return "0:00";
+       }
+   
+   
+       const prefix =
+           seconds > 0
+               ? "+"
+               : "−";
+   
+   
+       return (
+           prefix +
+           formatTime(
+               Math.abs(
+                   seconds
+               )
+           )
+       );
+   }
+   
+   
+   /* =========================================================
+      SHARE
+      ========================================================= */
+   
+   function updateSharePreview() {
+   
+       if (
+           appData.history.length === 0
+       ) {
+   
+           shareScoreEl.textContent =
+               "0";
+   
+           shareTitleEl.textContent =
+               "Writing Time Session";
+   
+           shareSummaryEl.textContent =
+               "Complete a session to generate your result.";
+   
+           return;
+       }
+   
+   
+       const session =
+           appData.history[0];
+   
+   
+       shareScoreEl.textContent =
+           session.score;
+   
+   
+       shareTitleEl.textContent =
+           "Writing Time Session";
+   
+   
+       shareSummaryEl.textContent =
+           `${session.words} words • ` +
+           `${Math.round(
+               session.cpm
+           )} CPM • ` +
+           `${formatTime(
+               session.time
+           )} • ` +
+           `${session.score}/100`;
+   }
+   
+   
+   function getShareText() {
+   
+       if (
+           appData.history.length === 0
+       ) {
+   
+           return "I haven't completed a Writing Time session yet.";
+       }
+   
+   
+       const session =
+           appData.history[0];
+   
+   
+       return `
+   Writing Time — Session Result
+   
+   Score: ${session.score}/100
+   Words: ${session.words}
+   Characters: ${session.characters}
+   Speed: ${Math.round(session.cpm)} CPM
+   WPM: ${Math.round(session.wpm)}
+   Time: ${formatTime(session.time)}
+   
+   Try Writing Time!
+   `.trim();
+   }
+   
+   
+   async function shareResult() {
+   
+       const text =
+           getShareText();
+   
+   
+       if (
+           navigator.share
+       ) {
+   
+           try {
+   
+               await navigator.share({
+   
+                   title:
+                       "Writing Time Result",
+   
+                   text
+   
+               });
+   
+   
+               liveStatus.textContent =
+                   "Result shared";
+   
+   
+               return;
+   
+           } catch (error) {
+   
+               /*
+                  User may have cancelled
+                  the native share dialog.
+               */
+   
+               if (
+                   error.name ===
+                   "AbortError"
+               ) {
+   
+                   return;
+               }
+           }
+       }
+   
+   
+       try {
+   
+           await navigator.clipboard.writeText(
+               text
+           );
+   
+   
+           liveStatus.textContent =
+               "Result copied";
+   
+   
+           alert(
+               "Your result has been copied to the clipboard."
+           );
+   
+       } catch (error) {
+   
+           alert(
+               text
+           );
+       }
+   }
+   
+   
+   /* =========================================================
+      HISTORY UI
+      ========================================================= */
+   
+   function renderHistory() {
+   
+       if (
+           appData.history.length === 0
+       ) {
+   
+           historyListEl.innerHTML =
+               "";
+   
+           historyEmptyEl.style.display =
+               "block";
+   
+           return;
+       }
+   
+   
+       historyEmptyEl.style.display =
+           "none";
+   
+   
+       historyListEl.innerHTML =
+           appData.history
+               .map(
+                   session => {
+   
+                       const date =
+                           new Date(
+                               session.date
+                           );
+   
+   
+                       return `
+   
+                           <div
+                               class="history-item"
+                           >
+   
+                               <div
+                                   class="history-item-title"
+                               >
+                                   ${escapeHTML(
+                                       session.preview ||
+                                       "Writing session"
+                                   )}
+                               </div>
+   
+   
+                               <div
+                                   class="history-item-data"
+                               >
+   
+                                   <span>
+                                       Words
+                                   </span>
+   
+                                   <strong>
+                                       ${session.words}
+                                   </strong>
+   
+                               </div>
+   
+   
+                               <div
+                                   class="history-item-data"
+                               >
+   
+                                   <span>
+                                       Speed
+                                   </span>
+   
+                                   <strong>
+                                       ${Math.round(
+                                           session.cpm
+                                       )} CPM
+                                   </strong>
+   
+                               </div>
+   
+   
+                               <div
+                                   class="history-item-data"
+                               >
+   
+                                   <span>
+                                       Score
+                                   </span>
+   
+                                   <strong>
+                                       ${session.score}/100
+                                   </strong>
+   
+                               </div>
+   
+   
+                               <div
+                                   class="history-item-data"
+                               >
+   
+                                   <span>
+                                       Time
+                                   </span>
+   
+                                   <strong>
+                                       ${formatTime(
+                                           session.time
+                                       )}
+                                   </strong>
+   
+                               </div>
+   
+   
+                               <div
+                                   class="history-item-data"
+                               >
+   
+                                   <span>
+                                       Date
+                                   </span>
+   
+                                   <strong>
+                                       ${date.toLocaleDateString()}
+                                   </strong>
+   
+                               </div>
+   
+   
+                               <button
+                                   class="history-delete"
+                                   type="button"
+                                   data-id="${session.id}"
+                                   title="Delete session"
+                               >
+                                   ×
+                               </button>
+   
+                           </div>
+   
+                       `;
+                   }
+               )
+               .join("");
+   }
+   
+   
+   function deleteHistoryItem(id) {
+   
+       appData.history =
+           appData.history.filter(
+               session =>
+                   String(
+                       session.id
+                   ) !==
+                   String(id)
+           );
+   
+   
+       saveData();
+   
+   
+       renderHistory();
+   
+       updatePersonalBests();
+   
+       updateComparison();
+   
+       updateSharePreview();
    }
    
    
@@ -1456,7 +3641,10 @@
                paragraph.value
            );
    
-       dictationIndex = 0;
+   
+       dictationIndex =
+           0;
+   
    
        updateDictationUI();
    }
@@ -1464,30 +3652,37 @@
    
    function calculateWordWritingTime(word) {
    
-       const characterCount =
-           getCharacterCount(word);
+       const characters =
+           getCharacterCount(
+               word
+           );
+   
    
        const speed =
            Number(
                appData.settings.targetSpeed
            ) || 68;
    
-       const extra =
+   
+       const extraDelay =
            Number(
                appData.settings.extraDelay
            ) || 0;
    
    
-       if (characterCount <= 0) {
-           return extra;
+       if (
+           characters <= 0
+       ) {
+   
+           return extraDelay;
        }
    
    
        return (
-           characterCount /
-           speed *
-           60
-       ) + extra;
+           characters /
+           speed
+       ) * 60 +
+       extraDelay;
    }
    
    
@@ -1502,17 +3697,14 @@
    
    
        if (
-           total === 0 ||
-           dictationIndex >= total
+           total === 0
        ) {
    
            dictationCurrentWordEl.textContent =
                "—";
    
            dictationWordNumberEl.textContent =
-               total === 0
-                   ? "0"
-                   : total;
+               "0";
    
            dictationCharacterCountEl.textContent =
                "0";
@@ -1521,14 +3713,36 @@
                "0.00s";
    
            dictationProgressTextEl.textContent =
-               total === 0
-                   ? "0%"
-                   : "100%";
+               "0%";
    
            dictationProgressBarEl.style.width =
-               total === 0
-                   ? "0%"
-                   : "100%";
+               "0%";
+   
+           return;
+       }
+   
+   
+       if (
+           dictationIndex >= total
+       ) {
+   
+           dictationCurrentWordEl.textContent =
+               "Complete 🎉";
+   
+           dictationWordNumberEl.textContent =
+               total;
+   
+           dictationCharacterCountEl.textContent =
+               "0";
+   
+           dictationWritingTimeEl.textContent =
+               "0.00s";
+   
+           dictationProgressTextEl.textContent =
+               "100%";
+   
+           dictationProgressBarEl.style.width =
+               "100%";
    
            return;
        }
@@ -1541,41 +3755,54 @@
    
    
        const characters =
-           getCharacterCount(word);
+           getCharacterCount(
+               word
+           );
    
    
-       const writingSeconds =
-           calculateWordWritingTime(word);
+       const writingTime =
+           calculateWordWritingTime(
+               word
+           );
    
    
-       const percentage =
+       const progress =
            (
                dictationIndex /
-               total *
-               100
-           );
+               total
+           ) * 100;
    
    
        dictationCurrentWordEl.textContent =
            word;
    
+   
        dictationWordNumberEl.textContent =
            dictationIndex + 1;
+   
    
        dictationCharacterCountEl.textContent =
            characters;
    
+   
        dictationWritingTimeEl.textContent =
-           `${writingSeconds.toFixed(2)}s`;
+           formatDecimalTime(
+               writingTime
+           );
+   
    
        dictationSpeedEl.textContent =
            appData.settings.targetSpeed;
    
+   
        dictationProgressTextEl.textContent =
-           `${Math.round(percentage)}%`;
+           `${Math.round(
+               progress
+           )}%`;
+   
    
        dictationProgressBarEl.style.width =
-           `${percentage}%`;
+           `${progress}%`;
    }
    
    
@@ -1585,8 +3812,8 @@
            !("speechSynthesis" in window)
        ) {
    
-           console.warn(
-               "Speech synthesis is not supported."
+           alert(
+               "Speech synthesis is not supported by this browser."
            );
    
            return;
@@ -1608,9 +3835,12 @@
            ) || 1;
    
    
-       utterance.pitch = 1;
+       utterance.pitch =
+           1;
    
-       utterance.volume = 1;
+   
+       utterance.volume =
+           1;
    
    
        window.speechSynthesis.speak(
@@ -1624,6 +3854,17 @@
        if (
            dictationRunning
        ) {
+   
+           if (
+               dictationPaused
+           ) {
+   
+               dictationPaused =
+                   false;
+   
+               processCurrentDictationWord();
+           }
+   
            return;
        }
    
@@ -1652,17 +3893,17 @@
            dictationWords.length
        ) {
    
-           dictationIndex = 0;
+           dictationIndex =
+               0;
        }
    
    
-       dictationRunning = true;
+       dictationRunning =
+           true;
    
-       dictationPaused = false;
    
-   
-       dictationStatusEl.textContent =
-           "Speaking";
+       dictationPaused =
+           false;
    
    
        processCurrentDictationWord();
@@ -1703,7 +3944,8 @@
    
    
        dictationRemainingMilliseconds =
-           writingSeconds * 1000;
+           writingSeconds *
+           1000;
    
    
        updateDictationUI();
@@ -1713,20 +3955,17 @@
            "Speaking";
    
    
-       speakWord(word);
+       speakWord(
+           word
+       );
    
-   
-       /*
-          Give speech a short amount of time to finish.
-          Then start the writing countdown.
-       */
    
        const speechDelay =
            Math.max(
-               350,
+               450,
                (
                    word.length *
-                   65
+                   70
                ) /
                (
                    Number(
@@ -1758,7 +3997,7 @@
            "Write now";
    
    
-       const countdownStart =
+       const start =
            Date.now();
    
    
@@ -1772,49 +4011,58 @@
    
    
        dictationCountdownInterval =
-           setInterval(() => {
+           setInterval(
+               () => {
    
-               const elapsed =
-                   Date.now() -
-                   countdownStart;
-   
-   
-               dictationRemainingMilliseconds =
-                   Math.max(
-                       0,
-                       duration - elapsed
-                   );
+                   const elapsed =
+                       Date.now() -
+                       start;
    
    
-               dictationCountdownEl.textContent =
-                   `${(
-                       dictationRemainingMilliseconds /
-                       1000
-                   ).toFixed(2)}s`;
+                   dictationRemainingMilliseconds =
+                       Math.max(
+                           0,
+                           duration -
+                           elapsed
+                       );
    
    
-               if (
-                   dictationRemainingMilliseconds <= 0
-               ) {
-   
-                   clearInterval(
-                       dictationCountdownInterval
-                   );
+                   dictationCountdownEl.textContent =
+                       `${(
+                           dictationRemainingMilliseconds /
+                           1000
+                       ).toFixed(2)}s`;
    
    
-                   dictationIndex++;
+                   if (
+                       dictationRemainingMilliseconds <=
+                       0
+                   ) {
+   
+                       clearInterval(
+                           dictationCountdownInterval
+                       );
    
    
-                   updateDictationUI();
+                       dictationIndex++;
    
    
-                   setTimeout(
-                       processCurrentDictationWord,
-                       200
-                   );
-               }
+                       dictationCountdownEl.textContent =
+                           "0.00s";
    
-           }, 30);
+   
+                       updateDictationUI();
+   
+   
+                       setTimeout(
+                           processCurrentDictationWord,
+                           150
+                       );
+                   }
+   
+               },
+               30
+           );
    }
    
    
@@ -1827,12 +4075,14 @@
        }
    
    
-       dictationPaused = true;
+       dictationPaused =
+           true;
    
    
        clearTimeout(
            dictationTimeout
        );
+   
    
        clearInterval(
            dictationCountdownInterval
@@ -1849,14 +4099,18 @@
    
    function stopDictation() {
    
-       dictationRunning = false;
+       dictationRunning =
+           false;
    
-       dictationPaused = false;
+   
+       dictationPaused =
+           false;
    
    
        clearTimeout(
            dictationTimeout
        );
+   
    
        clearInterval(
            dictationCountdownInterval
@@ -1869,6 +4123,7 @@
        dictationStatusEl.textContent =
            "Stopped";
    
+   
        dictationCountdownEl.textContent =
            "0.00s";
    }
@@ -1878,19 +4133,21 @@
    
        stopDictation();
    
-       dictationWords = [];
    
-       dictationIndex = 0;
+       dictationWords =
+           [];
    
-       dictationRemainingMilliseconds = 0;
+   
+       dictationIndex =
+           0;
+   
+   
+       dictationRemainingMilliseconds =
+           0;
    
    
        dictationStatusEl.textContent =
            "Ready";
-   
-   
-       dictationCountdownEl.textContent =
-           "0.00s";
    
    
        prepareDictation();
@@ -1899,14 +4156,18 @@
    
    function finishDictation() {
    
-       dictationRunning = false;
+       dictationRunning =
+           false;
    
-       dictationPaused = false;
+   
+       dictationPaused =
+           false;
    
    
        clearTimeout(
            dictationTimeout
        );
+   
    
        clearInterval(
            dictationCountdownInterval
@@ -1924,648 +4185,11 @@
            "0.00s";
    
    
-       dictationProgressTextEl.textContent =
-           "100%";
+       dictationIndex =
+           dictationWords.length;
    
-       dictationProgressBarEl.style.width =
-           "100%";
-   }
    
-   
-   function updateDictationPreview() {
-   
-       if (
-           !dictationRunning
-       ) {
-   
-           prepareDictation();
-       }
-   }
-   
-   
-   /* =========================================================
-      HISTORY
-      ========================================================= */
-   
-   function saveSession() {
-   
-       const data =
-           analyzeText(
-               paragraph.value
-           );
-   
-   
-       if (
-           data.characters === 0
-       ) {
-           return;
-       }
-   
-   
-       const seconds =
-           elapsedMilliseconds /
-           1000;
-   
-   
-       const cpm =
-           seconds > 0
-               ? data.characters /
-                 seconds *
-                 60
-               : 0;
-   
-   
-       const session = {
-   
-           id:
-               Date.now(),
-   
-           date:
-               new Date().toISOString(),
-   
-           preview:
-               paragraph.value
-                   .replace(/\s+/g, " ")
-                   .trim()
-                   .slice(0, 100),
-   
-           words:
-               data.words,
-   
-           letters:
-               data.letters,
-   
-           characters:
-               data.characters,
-   
-           time:
-               seconds,
-   
-           estimatedTime:
-               calculateEstimatedSeconds(
-                   data.characters
-               ),
-   
-           cpm,
-   
-           wpm:
-               seconds > 0
-                   ? data.words /
-                     seconds *
-                     60
-                   : 0
-       };
-   
-   
-       appData.history.unshift(
-           session
-       );
-   
-   
-       /*
-          Keep the last 50 sessions.
-       */
-   
-       appData.history =
-           appData.history.slice(
-               0,
-               50
-           );
-   
-   
-       saveData();
-   
-       renderHistory();
-   
-       drawPerformanceChart();
-   }
-   
-   
-   function renderHistory() {
-   
-       if (
-           !historyListEl ||
-           !historyEmptyEl
-       ) {
-           return;
-       }
-   
-   
-       if (
-           appData.history.length === 0
-       ) {
-   
-           historyListEl.innerHTML = "";
-   
-           historyEmptyEl.style.display =
-               "block";
-   
-           return;
-       }
-   
-   
-       historyEmptyEl.style.display =
-           "none";
-   
-   
-       historyListEl.innerHTML =
-           appData.history
-               .map(session => {
-   
-                   const date =
-                       new Date(
-                           session.date
-                       );
-   
-   
-                   return `
-                       <div
-                           class="history-item"
-                           data-id="${session.id}"
-                       >
-   
-                           <div class="history-item-title">
-                               ${escapeHTML(
-                                   session.preview ||
-                                   "Untitled session"
-                               )}
-                           </div>
-   
-                           <div class="history-item-data">
-                               <span>Words</span>
-                               <strong>
-                                   ${session.words}
-                               </strong>
-                           </div>
-   
-                           <div class="history-item-data">
-                               <span>Characters</span>
-                               <strong>
-                                   ${session.characters}
-                               </strong>
-                           </div>
-   
-                           <div class="history-item-data">
-                               <span>Time</span>
-                               <strong>
-                                   ${formatTime(
-                                       session.time
-                                   )}
-                               </strong>
-                           </div>
-   
-                           <div class="history-item-data">
-                               <span>Speed</span>
-                               <strong>
-                                   ${Math.round(
-                                       session.cpm
-                                   )} CPM
-                               </strong>
-                           </div>
-   
-                           <div class="history-item-data">
-                               <span>Date</span>
-                               <strong>
-                                   ${date.toLocaleDateString()}
-                               </strong>
-                           </div>
-   
-                           <button
-                               class="history-delete"
-                               type="button"
-                               data-delete-id="${session.id}"
-                               title="Delete session"
-                           >
-                               ×
-                           </button>
-   
-                       </div>
-                   `;
-   
-               })
-               .join("");
-   }
-   
-   
-   function deleteHistoryItem(id) {
-   
-       appData.history =
-           appData.history.filter(
-               item =>
-                   String(item.id) !==
-                   String(id)
-           );
-   
-   
-       saveData();
-   
-       renderHistory();
-   
-       drawPerformanceChart();
-   }
-   
-   
-   /* =========================================================
-      PERFORMANCE CHART
-      ========================================================= */
-   
-   function drawPerformanceChart() {
-   
-       if (
-           !performanceChart
-       ) {
-           return;
-       }
-   
-   
-       const canvas =
-           performanceChart;
-   
-   
-       const ctx =
-           canvas.getContext("2d");
-   
-   
-       const rect =
-           canvas.getBoundingClientRect();
-   
-   
-       const dpr =
-           window.devicePixelRatio || 1;
-   
-   
-       canvas.width =
-           rect.width * dpr;
-   
-       canvas.height =
-           rect.height * dpr;
-   
-   
-       ctx.scale(
-           dpr,
-           dpr
-       );
-   
-   
-       const width =
-           rect.width;
-   
-       const height =
-           rect.height;
-   
-   
-       ctx.clearRect(
-           0,
-           0,
-           width,
-           height
-       );
-   
-   
-       const sessions =
-           [...appData.history]
-               .reverse()
-               .slice(-20);
-   
-   
-       if (
-           sessions.length === 0
-       ) {
-   
-           ctx.fillStyle =
-               getCSSVariable("--muted");
-   
-           ctx.font =
-               "14px Segoe UI";
-   
-           ctx.textAlign =
-               "center";
-   
-           ctx.fillText(
-               "Complete a session to see your performance.",
-               width / 2,
-               height / 2
-           );
-   
-           return;
-       }
-   
-   
-       const values =
-           sessions.map(
-               session =>
-                   Number(session.cpm) || 0
-           );
-   
-   
-       const maxValue =
-           Math.max(
-               ...values,
-               Number(
-                   appData.settings.targetSpeed
-               )
-           );
-   
-   
-       const padding = 40;
-   
-       const chartWidth =
-           width - padding * 2;
-   
-       const chartHeight =
-           height - padding * 2;
-   
-   
-       /* Grid */
-   
-       ctx.strokeStyle =
-           getCSSVariable("--border");
-   
-       ctx.lineWidth = 1;
-   
-   
-       for (
-           let i = 0;
-           i <= 4;
-           i++
-       ) {
-   
-           const y =
-               padding +
-               chartHeight *
-               i /
-               4;
-   
-   
-           ctx.beginPath();
-   
-           ctx.moveTo(
-               padding,
-               y
-           );
-   
-           ctx.lineTo(
-               width - padding,
-               y
-           );
-   
-           ctx.stroke();
-       }
-   
-   
-       /* Target line */
-   
-       const target =
-           Number(
-               appData.settings.targetSpeed
-           ) || 68;
-   
-   
-       const targetY =
-           padding +
-           chartHeight *
-           (
-               1 -
-               target /
-               maxValue
-           );
-   
-   
-       ctx.setLineDash([
-           6,
-           5
-       ]);
-   
-   
-       ctx.strokeStyle =
-           getCSSVariable("--muted");
-   
-   
-       ctx.beginPath();
-   
-       ctx.moveTo(
-           padding,
-           targetY
-       );
-   
-       ctx.lineTo(
-           width - padding,
-           targetY
-       );
-   
-       ctx.stroke();
-   
-   
-       ctx.setLineDash([]);
-   
-   
-       /* Chart line */
-   
-       ctx.strokeStyle =
-           getCSSVariable("--primary");
-   
-       ctx.lineWidth = 3;
-   
-       ctx.beginPath();
-   
-   
-       sessions.forEach(
-           (session, index) => {
-   
-               const value =
-                   Number(
-                       session.cpm
-                   ) || 0;
-   
-   
-               const x =
-                   padding +
-                   (
-                       sessions.length === 1
-                           ? chartWidth / 2
-                           : chartWidth *
-                             index /
-                             (
-                                 sessions.length - 1
-                             )
-                   );
-   
-   
-               const y =
-                   padding +
-                   chartHeight *
-                   (
-                       1 -
-                       value /
-                       maxValue
-                   );
-   
-   
-               if (index === 0) {
-   
-                   ctx.moveTo(
-                       x,
-                       y
-                   );
-   
-               } else {
-   
-                   ctx.lineTo(
-                       x,
-                       y
-                   );
-               }
-           }
-       );
-   
-   
-       ctx.stroke();
-   
-   
-       /* Points */
-   
-       sessions.forEach(
-           (session, index) => {
-   
-               const value =
-                   Number(
-                       session.cpm
-                   ) || 0;
-   
-   
-               const x =
-                   padding +
-                   (
-                       sessions.length === 1
-                           ? chartWidth / 2
-                           : chartWidth *
-                             index /
-                             (
-                                 sessions.length - 1
-                             )
-                   );
-   
-   
-               const y =
-                   padding +
-                   chartHeight *
-                   (
-                       1 -
-                       value /
-                       maxValue
-                   );
-   
-   
-               ctx.fillStyle =
-                   getCSSVariable("--primary");
-   
-   
-               ctx.beginPath();
-   
-               ctx.arc(
-                   x,
-                   y,
-                   4,
-                   0,
-                   Math.PI * 2
-               );
-   
-               ctx.fill();
-           }
-       );
-   
-   
-       /* Y-axis labels */
-   
-       ctx.fillStyle =
-           getCSSVariable("--muted");
-   
-       ctx.font =
-           "11px Segoe UI";
-   
-       ctx.textAlign =
-           "right";
-   
-   
-       for (
-           let i = 0;
-           i <= 4;
-           i++
-       ) {
-   
-           const value =
-               Math.round(
-                   maxValue *
-                   (
-                       1 -
-                       i / 4
-                   )
-               );
-   
-   
-           const y =
-               padding +
-               chartHeight *
-               i /
-               4;
-   
-   
-           ctx.fillText(
-               value,
-               padding - 7,
-               y + 4
-           );
-       }
-   }
-   
-   
-   function getCSSVariable(name) {
-   
-       return getComputedStyle(
-           document.body
-       )
-           .getPropertyValue(name)
-           .trim() || "#64748b";
-   }
-   
-   
-   /* =========================================================
-      THEME
-      ========================================================= */
-   
-   function applyTheme() {
-   
-       const dark =
-           appData.theme === "dark";
-   
-   
-       document.body.classList.toggle(
-           "dark",
-           dark
-       );
-   
-   
-       themeToggle.textContent =
-           dark
-               ? "☀️ Light"
-               : "🌙 Dark";
-   
-   
-       drawPerformanceChart();
-   }
-   
-   
-   function toggleTheme() {
-   
-       appData.theme =
-           appData.theme === "dark"
-               ? "light"
-               : "dark";
-   
-   
-       saveData();
-   
-       applyTheme();
+       updateDictationUI();
    }
    
    
@@ -2573,22 +4197,27 @@
       SETTINGS
       ========================================================= */
    
-   function loadSettingsIntoUI() {
+   function loadSettings() {
    
        speedInput.value =
            appData.settings.targetSpeed;
    
+   
        readingSpeedInput.value =
            appData.settings.readingSpeed;
+   
    
        autoSaveToggle.checked =
            appData.settings.autoSave;
    
+   
        autoTimerToggle.checked =
            appData.settings.autoTimer;
    
+   
        dictationSpeechRateEl.value =
            appData.settings.speechRate;
+   
    
        dictationExtraDelayEl.value =
            appData.settings.extraDelay;
@@ -2603,22 +4232,15 @@
        goalTypeEl.value =
            appData.goal.type;
    
+   
        goalTargetEl.value =
            appData.goal.target;
-   
-   
-       targetSpeedEl.textContent =
-           appData.settings.targetSpeed;
-   
-   
-       dictationSpeedEl.textContent =
-           appData.settings.targetSpeed;
    }
    
    
-   function saveSettingsFromUI() {
+   function saveSettings() {
    
-       const speed =
+       const targetSpeed =
            Number(
                speedInput.value
            );
@@ -2631,17 +4253,21 @@
    
    
        if (
-           Number.isFinite(speed) &&
-           speed > 0
+           Number.isFinite(
+               targetSpeed
+           ) &&
+           targetSpeed > 0
        ) {
    
            appData.settings.targetSpeed =
-               speed;
+               targetSpeed;
        }
    
    
        if (
-           Number.isFinite(readingSpeed) &&
+           Number.isFinite(
+               readingSpeed
+           ) &&
            readingSpeed > 0
        ) {
    
@@ -2677,6 +4303,45 @@
    
    
        updateStatistics();
+   
+   
+       drawPerformanceChart();
+   }
+   
+   
+   /* =========================================================
+      THEME
+      ========================================================= */
+   
+   function applyTheme() {
+   
+       document.body.classList.toggle(
+           "dark",
+           appData.theme === "dark"
+       );
+   
+   
+       themeToggle.textContent =
+           appData.theme === "dark"
+               ? "☀️"
+               : "🌙";
+   
+   
+       drawPerformanceChart();
+   }
+   
+   
+   function toggleTheme() {
+   
+       appData.theme =
+           appData.theme === "dark"
+               ? "light"
+               : "dark";
+   
+   
+       saveData();
+   
+       applyTheme();
    }
    
    
@@ -2686,53 +4351,61 @@
    
    function clearParagraph() {
    
-       paragraph.value = "";
-   
-       appData.paragraph = "";
-   
-       saveData();
+       paragraph.value =
+           "";
    
    
-       if (timerRunning) {
-           resetTimer();
-       } else {
-   
-           elapsedMilliseconds = 0;
-   
-           updateTimerDisplay();
-       }
+       appData.paragraph =
+           "";
    
    
-       dictationWords = [];
+       resetTimer();
    
-       dictationIndex = 0;
    
        stopDictation();
    
    
+       dictationWords =
+           [];
+   
+   
+       dictationIndex =
+           0;
+   
+   
+       sessionSamples =
+           [];
+   
+   
        updateStatistics();
+   
    
        prepareDictation();
    
    
        liveStatus.textContent =
            "Ready";
+   
+   
+       saveData();
    }
    
    
    /* =========================================================
-      CLEAR ALL SAVED DATA
+      CLEAR ALL DATA
       ========================================================= */
    
    function clearAllSavedData() {
    
        const confirmed =
            confirm(
-               "Are you sure you want to delete ALL saved data? This includes your paragraph, settings, goals and writing history."
+               "Delete all Writing Time data, including your paragraph, history, settings and goals?"
            );
    
    
-       if (!confirmed) {
+       if (
+           !confirmed
+       ) {
            return;
        }
    
@@ -2743,13 +4416,17 @@
    
    
        appData =
-           cloneDefaultData();
+           deepClone(
+               defaultData
+           );
    
    
-       elapsedMilliseconds = 0;
+       elapsedMilliseconds =
+           0;
    
    
-       timerRunning = false;
+       timerRunning =
+           false;
    
    
        clearInterval(
@@ -2757,14 +4434,19 @@
        );
    
    
-       timerInterval = null;
+       timerInterval =
+           null;
    
    
        paragraph.value =
            "";
    
    
-       loadSettingsIntoUI();
+       sessionSamples =
+           [];
+   
+   
+       loadSettings();
    
        applyTheme();
    
@@ -2773,6 +4455,10 @@
        updateStatistics();
    
        renderHistory();
+   
+       updateComparison();
+   
+       updatePersonalBests();
    
        prepareDictation();
    
@@ -2783,7 +4469,7 @@
    
    
    /* =========================================================
-      EVENT LISTENERS — TEXT
+      EVENT LISTENERS
       ========================================================= */
    
    paragraph.addEventListener(
@@ -2806,6 +4492,15 @@
    
            updateStatistics();
    
+   
+           if (
+               !timerRunning
+           ) {
+   
+               drawPerformanceChart();
+           }
+   
+   
            saveData();
        }
    );
@@ -2817,22 +4512,10 @@
    
            updateStatistics();
    
+           prepareDictation();
+   
            liveStatus.textContent =
                "Calculated";
-   
-           if (
-               appData.settings.autoSave &&
-               paragraph.value.trim()
-           ) {
-   
-               /*
-                  Calculation itself does not create
-                  a history item.
-   
-                  Use the timer reset or explicit
-                  session completion flow for history.
-               */
-           }
        }
    );
    
@@ -2843,9 +4526,7 @@
    );
    
    
-   /* =========================================================
-      EVENT LISTENERS — TIMER
-      ========================================================= */
+   /* Timer */
    
    startTimerBtn.addEventListener(
        "click",
@@ -2861,30 +4542,67 @@
    
    resetTimerBtn.addEventListener(
        "click",
+       resetTimer
+   );
+   
+   
+   /* Frequency */
+   
+   topWordsBtn.addEventListener(
+       "click",
        () => {
    
-           /*
-              Save the session before resetting if
-              there is actual writing data.
-           */
-   
-           if (
-               paragraph.value.trim() &&
-               elapsedMilliseconds > 0
-           ) {
-   
-               saveSession();
-           }
+           frequencyMode =
+               "top";
    
    
-           resetTimer();
+           topWordsBtn.classList.add(
+               "active"
+           );
+   
+   
+           allWordsBtn.classList.remove(
+               "active"
+           );
+   
+   
+           updateWordFrequency(
+               analyzeText(
+                   paragraph.value
+               )
+           );
        }
    );
    
    
-   /* =========================================================
-      EVENT LISTENERS — GOAL
-      ========================================================= */
+   allWordsBtn.addEventListener(
+       "click",
+       () => {
+   
+           frequencyMode =
+               "all";
+   
+   
+           allWordsBtn.classList.add(
+               "active"
+           );
+   
+   
+           topWordsBtn.classList.remove(
+               "active"
+           );
+   
+   
+           updateWordFrequency(
+               analyzeText(
+                   paragraph.value
+               )
+           );
+       }
+   );
+   
+   
+   /* Goal */
    
    setGoalBtn.addEventListener(
        "click",
@@ -2892,66 +4610,7 @@
    );
    
    
-   /* =========================================================
-      EVENT LISTENERS — SETTINGS
-      ========================================================= */
-   
-   speedInput.addEventListener(
-       "change",
-       saveSettingsFromUI
-   );
-   
-   
-   readingSpeedInput.addEventListener(
-       "change",
-       saveSettingsFromUI
-   );
-   
-   
-   autoSaveToggle.addEventListener(
-       "change",
-       saveSettingsFromUI
-   );
-   
-   
-   autoTimerToggle.addEventListener(
-       "change",
-       saveSettingsFromUI
-   );
-   
-   
-   dictationSpeechRateEl.addEventListener(
-       "input",
-       () => {
-   
-           const value =
-               Number(
-                   dictationSpeechRateEl.value
-               );
-   
-   
-           dictationSpeechRateValueEl.textContent =
-               `${value.toFixed(1)}×`;
-   
-   
-           appData.settings.speechRate =
-               value;
-   
-   
-           saveData();
-       }
-   );
-   
-   
-   dictationExtraDelayEl.addEventListener(
-       "change",
-       saveSettingsFromUI
-   );
-   
-   
-   /* =========================================================
-      EVENT LISTENERS — THEME
-      ========================================================= */
+   /* Theme */
    
    themeToggle.addEventListener(
        "click",
@@ -2959,9 +4618,7 @@
    );
    
    
-   /* =========================================================
-      EVENT LISTENERS — DICTATION
-      ========================================================= */
+   /* Dictation */
    
    startDictationBtn.addEventListener(
        "click",
@@ -2987,9 +4644,72 @@
    );
    
    
-   /* =========================================================
-      EVENT LISTENERS — HISTORY
-      ========================================================= */
+   /* Speech rate */
+   
+   dictationSpeechRateEl.addEventListener(
+       "input",
+       () => {
+   
+           const value =
+               Number(
+                   dictationSpeechRateEl.value
+               );
+   
+   
+           dictationSpeechRateValueEl.textContent =
+               `${value.toFixed(1)}×`;
+   
+   
+           appData.settings.speechRate =
+               value;
+   
+   
+           saveData();
+       }
+   );
+   
+   
+   /* Settings */
+   
+   speedInput.addEventListener(
+       "change",
+       saveSettings
+   );
+   
+   
+   readingSpeedInput.addEventListener(
+       "change",
+       saveSettings
+   );
+   
+   
+   autoSaveToggle.addEventListener(
+       "change",
+       saveSettings
+   );
+   
+   
+   autoTimerToggle.addEventListener(
+       "change",
+       saveSettings
+   );
+   
+   
+   dictationExtraDelayEl.addEventListener(
+       "change",
+       saveSettings
+   );
+   
+   
+   /* Share */
+   
+   shareBtn.addEventListener(
+       "click",
+       shareResult
+   );
+   
+   
+   /* History */
    
    clearHistoryBtn.addEventListener(
        "click",
@@ -3004,22 +4724,31 @@
    
            const confirmed =
                confirm(
-                   "Delete your entire writing history?"
+                   "Delete all writing session history?"
                );
    
    
-           if (!confirmed) {
+           if (
+               !confirmed
+           ) {
                return;
            }
    
    
-           appData.history = [];
+           appData.history =
+               [];
+   
    
            saveData();
    
+   
            renderHistory();
    
-           drawPerformanceChart();
+           updatePersonalBests();
+   
+           updateComparison();
+   
+           updateSharePreview();
        }
    );
    
@@ -3030,25 +4759,25 @@
    
            const button =
                event.target.closest(
-                   "[data-delete-id]"
+                   ".history-delete"
                );
    
    
-           if (!button) {
+           if (
+               !button
+           ) {
                return;
            }
    
    
            deleteHistoryItem(
-               button.dataset.deleteId
+               button.dataset.id
            );
        }
    );
    
    
-   /* =========================================================
-      EVENT LISTENER — CLEAR DATA
-      ========================================================= */
+   /* Delete all data */
    
    clearSavedDataBtn.addEventListener(
        "click",
@@ -3062,10 +4791,7 @@
    
    window.addEventListener(
        "resize",
-       () => {
-   
-           drawPerformanceChart();
-       }
+       drawPerformanceChart
    );
    
    
@@ -3076,8 +4802,10 @@
            appData.paragraph =
                paragraph.value;
    
-           appData.timer.elapsed =
+   
+           appData.currentSession.elapsed =
                elapsedMilliseconds;
+   
    
            saveData();
        }
@@ -3090,90 +4818,49 @@
    
    function initializeApp() {
    
-       /*
-          Restore paragraph.
-       */
-   
        paragraph.value =
-           appData.paragraph || "";
+           appData.paragraph ||
+           "";
    
    
-       /*
-          Restore settings.
-       */
+       loadSettings();
    
-       loadSettingsIntoUI();
-   
-   
-       /*
-          Restore timer.
-       */
    
        elapsedMilliseconds =
            Number(
-               appData.timer.elapsed || 0
-           );
+               appData.currentSession.elapsed
+           ) || 0;
    
    
        updateTimerDisplay();
    
    
-       /*
-          Restore theme.
-       */
-   
        applyTheme();
    
-   
-       /*
-          Restore goal.
-       */
-   
-       goalTypeEl.value =
-           appData.goal.type;
-   
-       goalTargetEl.value =
-           appData.goal.target;
-   
-   
-       /*
-          Update everything.
-       */
    
        updateStatistics();
    
    
-       /*
-          Restore history.
-       */
-   
        renderHistory();
    
    
-       /*
-          Prepare dictation.
-       */
+       updatePersonalBests();
+   
+   
+       updateComparison();
+   
+   
+       updateSharePreview();
+   
    
        prepareDictation();
    
    
-       /*
-          Draw chart.
-       */
-   
-       drawPerformanceChart();
-   
-   
-       /*
-          Timer buttons.
-       */
-   
        updateTimerButtons();
    
    
-       /*
-          Initial status.
-       */
+       drawPerformanceChart();
+   
    
        liveStatus.textContent =
            paragraph.value.trim()
@@ -3181,9 +4868,5 @@
                : "Ready";
    }
    
-   
-   /* =========================================================
-      START APP
-      ========================================================= */
    
    initializeApp();
